@@ -352,8 +352,12 @@ superadmin anotadas.
   El script de build agrega `?sslmode=require` automáticamente para hosts
   `*.rlwy.net` si faltaba (TLS frente al proxy de Railway).
 - **`migrate deploy` falla después de "1 migration found"** → suele ser **TLS**
-  (arriba) o **Node muy nuevo** en Vercel: el repo fija `engines.node` a **20.x**;
-  en Vercel → Settings → General asegurate de no forzar Node 24 si da problemas.
+  (arriba) o **Node 24** en Vercel: el repo usa `engines` + `.npmrc` con
+  `engine-strict=true` (solo Node 20.x). En Vercel → **Settings → General →
+  Node.js Version** elegí **20.x** (no "24.x" ni "Latest").
+- Si el log muestra `Error: Command failed: npx prisma migrate deploy` con
+  `stdout: null` → era el antiguo `execSync`; actualizá el deploy al último
+  `main`: el script ahora usa `spawnSync` y imprime la salida real de Prisma.
 - **`prisma` no encontrado en el build** → `prisma` está en `dependencies` para
   que siempre esté instalado en el entorno de build.
 - **Schema cambió pero Vercel no corre migrations** → verificá que `build` en

@@ -1,11 +1,17 @@
 /**
- * Build usado en Vercel / Railway: generate → migrate deploy → next build.
+ * Build en Vercel / Railway: prisma generate → migrate deploy → next build.
+ * Usa solo spawnSync + stdio inherit (nunca execSync) para que Vercel muestre
+ * la salida real de Prisma/Next y no solo "Error: Command failed".
  */
-import { execSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 
-/** Carga .env local (Node no lo hace solo; Prisma CLI sí, pero este script no). */
+console.log(
+  `[naturalpack] build-production.mjs | node ${process.version} | pid ${process.pid}`
+);
+
+/** Carga .env local si existe (Vercel no tiene .env en el repo). */
 function loadDotEnv() {
   const p = resolve(process.cwd(), ".env");
   if (!existsSync(p)) return;
@@ -27,15 +33,39 @@ function loadDotEnv() {
   }
 }
 
-function run(cmd) {
-  execSync(cmd, { stdio: "inherit", shell: true });
+function spawnInherit(label, command, args) {
+  console.log(`[naturalpack] → ${label}: ${command} ${args.join(" ")}`);
+  const r = spawnSync(command, args, {
+    stdio: "inherit",
+    shell: true,
+    env: process.env,
+    cwd: process.cwd(),
+  });
+  if (r.error) {
+    console.error(`[naturalpack] ${label} spawn error:`, r.error);
+    process.exit(1);
+  }
+  if (r.signal) {
+    console.error(`[naturalpack] ${label} killed by signal: ${r.signal}`);
+    process.exit(1);
+  }
+  if (r.status !== 0) {
+    console.error(`
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+❌ Falló: ${label} (código de salida ${r.status})
+
+Si fue prisma migrate deploy y usás Railway: DATABASE_URL = DATABASE_PUBLIC_URL
+(no *.railway.internal). El script agrega sslmode=require en *.rlwy.net.
+
+Forzá Node 20 en Vercel: Project → Settings → General → Node.js Version → 20.x
+(este repo tiene engines + .npmrc engine-strict).
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`);
+    process.exit(r.status ?? 1);
+  }
 }
 
-/**
- * El proxy público de Railway (*.rlwy.net) suele exigir TLS explícito desde
- * clientes externos (Vercel). Sin ?sslmode=require, migrate deploy a veces
- * falla después de listar migraciones.
- */
+/** TLS explícito para proxies públicos (Railway, Neon, etc.). */
 function normalizeDatabaseUrl(url) {
   const u = url.trim();
   if (!u.startsWith("postgresql://") && !u.startsWith("postgres://")) return u;
@@ -48,59 +78,21 @@ function normalizeDatabaseUrl(url) {
   return u.includes("?") ? `${u}&sslmode=require` : `${u}?sslmode=require`;
 }
 
-function runMigrateDeploy() {
-  const r = spawnSync("npx", ["prisma", "migrate", "deploy"], {
-    shell: true,
-    encoding: "utf8",
-    env: process.env,
-  });
-  if (r.stdout) process.stdout.write(r.stdout);
-  if (r.stderr) process.stderr.write(r.stderr);
-  if (r.signal) {
-    console.error(`migrate deploy terminó por señal: ${r.signal}`);
-    process.exit(1);
-  }
-  if (r.status !== 0) {
-    console.error(`
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-❌ prisma migrate deploy falló (código ${r.status}).
-
-Si usás Railway + Vercel:
-  • La URL tiene que ser DATABASE_PUBLIC_URL (no *.railway.internal).
-  • El script ya agrega ?sslmode=require para *.rlwy.net si faltaba.
-  • En Vercel → Settings → General: Node.js 20.x (package.json tiene "engines").
-
-Si el error menciona PgBouncer / prepared statements / pooler, en Railway
-buscá una URL "directa" sin pooler para migraciones o consultá la doc de
-Railway para tu tipo de Postgres.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-`);
-    process.exit(r.status ?? 1);
-  }
-}
-
 loadDotEnv();
-run("npx prisma generate");
+spawnInherit("prisma generate", "npx", ["prisma", "generate"]);
 
 let db = process.env.DATABASE_URL?.trim() ?? "";
 if (!db.startsWith("postgresql://") && !db.startsWith("postgres://")) {
   console.error(`
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-❌ DATABASE_URL no está definida o no es una URL de PostgreSQL.
-
-En Vercel: pegá el valor de DATABASE_PUBLIC_URL de Railway en DATABASE_URL.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+❌ DATABASE_URL debe ser postgresql://…
+   En Vercel usá el valor de DATABASE_PUBLIC_URL (Railway).
 `);
   process.exit(1);
 }
-
 if (db.includes(".railway.internal") || db.includes("railway.internal")) {
   console.error(`
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-❌ DATABASE_URL apunta a *.railway.internal — Vercel no puede usarla.
-
-Usá DATABASE_PUBLIC_URL como valor de DATABASE_URL en Vercel.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+❌ DATABASE_URL no puede ser *.railway.internal desde Vercel.
+   Usá DATABASE_PUBLIC_URL como valor de DATABASE_URL.
 `);
   process.exit(1);
 }
@@ -108,5 +100,5 @@ Usá DATABASE_PUBLIC_URL como valor de DATABASE_URL en Vercel.
 db = normalizeDatabaseUrl(db);
 process.env.DATABASE_URL = db;
 
-runMigrateDeploy();
-run("npx next build");
+spawnInherit("prisma migrate deploy", "npx", ["prisma", "migrate", "deploy"]);
+spawnInherit("next build", "npx", ["next", "build"]);
