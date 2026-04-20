@@ -1,0 +1,217 @@
+.wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.trigger {
+  appearance: none;
+  background: var(--bg-2);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem 0.3rem 0.3rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.trigger:hover {
+  border-color: var(--primary);
+}
+
+.trigger.open {
+  border-color: var(--primary);
+  background: var(--bg-elev);
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  color: #07090d;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.triggerName {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-dim);
+}
+
+@media (max-width: 560px) {
+  .triggerName {
+    display: none;
+  }
+  .trigger {
+    padding: 0.25rem;
+  }
+}
+
+/* --- backdrop: atrapa clicks fuera en mobile --- */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: transparent;
+}
+
+/* --- panel del menú --- */
+.panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 280px;
+  max-width: calc(100vw - 2rem);
+  padding: 0.75rem;
+  background: var(--bg-elev);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg, 0 20px 48px -16px rgba(0, 0, 0, 0.6));
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  animation: pop 0.18s ease-out;
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.4rem 0.6rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.2rem;
+}
+
+.headerName {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.headerEmail {
+  color: var(--muted);
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menuItem {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  padding: 0.65rem 0.7rem;
+  border-radius: var(--radius);
+  text-align: left;
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.menuItem:hover,
+.menuItem:focus-visible {
+  background: var(--bg-2);
+  color: var(--text);
+  outline: none;
+}
+
+.menuItem.danger {
+  color: #fecdd3;
+}
+.menuItem.danger:hover {
+  background: var(--danger-soft);
+}
+
+.sep {
+  height: 1px;
+  background: var(--border);
+  margin: 0.2rem 0;
+}
+
+/* --- formulario cambio de contraseña --- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.25rem;
+}
+
+.formHead {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.15rem;
+}
+
+.formTitle {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.back {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0.2rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.12s ease, background 0.12s ease;
+}
+
+.back:hover {
+  color: var(--text);
+  background: var(--bg-2);
+}
+
+.feedback {
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.feedback.ok {
+  background: var(--primary-soft);
+  border: 1px solid var(--primary-ring);
+  color: #c1fbd4;
+}
+
+.feedback.err {
+  background: var(--danger-soft);
+  border: 1px solid var(--danger-ring);
+  color: #fecdd3;
+}

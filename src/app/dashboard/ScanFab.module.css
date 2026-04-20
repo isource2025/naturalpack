@@ -1,0 +1,112 @@
+.fab {
+  position: fixed;
+  bottom: max(1.25rem, env(safe-area-inset-bottom, 0px) + 1rem);
+  right: max(1.25rem, env(safe-area-inset-right, 0px) + 1rem);
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 1rem 1.25rem 1rem 1rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--primary) 0%, #10b981 100%);
+  color: #07090d;
+  font-weight: 800;
+  font-family: inherit;
+  font-size: 1rem;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  box-shadow:
+    0 14px 40px -10px rgba(34, 224, 122, 0.55),
+    0 4px 12px -2px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.15s ease;
+  isolation: isolate;
+  animation: fabIn 0.4s cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+
+.fab::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle at center,
+    rgba(34, 224, 122, 0.55) 0%,
+    rgba(34, 224, 122, 0) 70%
+  );
+  z-index: -1;
+  animation: pulseRing 2.2s ease-in-out infinite;
+}
+
+.fab:hover,
+.fab:focus-visible {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  outline: none;
+}
+
+.fab:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.iconBox {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  background: rgba(7, 9, 13, 0.12);
+  border-radius: 999px;
+}
+
+.label {
+  letter-spacing: -0.01em;
+}
+
+@keyframes fabIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pulseRing {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.9;
+  }
+}
+
+/* -- Mobile: sólo ícono para no tapar contenido -- */
+@media (max-width: 520px) {
+  .fab {
+    padding: 0;
+    width: 50px;
+    height: 50px;
+    justify-content: center;
+    gap: 0;
+  }
+  .label {
+    display: none;
+  }
+  .iconBox {
+    background: transparent;
+    width: auto;
+    height: auto;
+  }
+}
+
+/* -- Respeta prefers-reduced-motion -- */
+@media (prefers-reduced-motion: reduce) {
+  .fab,
+  .fab::before {
+    animation: none;
+  }
+}

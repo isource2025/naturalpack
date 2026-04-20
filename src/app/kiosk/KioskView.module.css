@@ -1,0 +1,310 @@
+.kiosk {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+  transition: background 0.6s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.kiosk.idle {
+  background: radial-gradient(
+      1400px 800px at 20% 10%,
+      rgba(34, 224, 122, 0.12),
+      transparent 60%
+    ),
+    radial-gradient(
+      1000px 700px at 85% 95%,
+      rgba(250, 204, 21, 0.07),
+      transparent 60%
+    ),
+    var(--bg);
+}
+
+.kiosk.granted {
+  background: radial-gradient(
+      1500px 900px at 50% 40%,
+      rgba(34, 224, 122, 0.5),
+      rgba(7, 45, 24, 0.85) 60%,
+      #08130c 100%
+    );
+}
+
+/* Acceso OK pero membresía con ≤3 días: mismo énfasis rojo que el resto de la app */
+.kiosk.grantedLow {
+  background: radial-gradient(
+      1500px 900px at 50% 38%,
+      rgba(244, 63, 94, 0.42),
+      rgba(251, 146, 60, 0.18),
+      rgba(40, 10, 12, 0.9) 58%,
+      #100608 100%
+    );
+}
+
+.kiosk.denied {
+  background: radial-gradient(
+      1500px 900px at 50% 40%,
+      rgba(244, 63, 94, 0.45),
+      rgba(48, 8, 18, 0.85) 60%,
+      #0f0608 100%
+    );
+}
+
+.inner {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* -- Idle (QR) -- */
+.qrBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  border: 1px solid var(--primary-ring);
+  color: #bbf7d0;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.title {
+  font-size: clamp(2rem, 3vw + 1rem, 3.4rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin: 0;
+}
+
+.sub {
+  color: var(--text-dim);
+  font-size: clamp(0.95rem, 0.3vw + 0.9rem, 1.15rem);
+  max-width: 40ch;
+}
+
+.qrBox {
+  position: relative;
+  background: #fff;
+  padding: 1.1rem;
+  border-radius: 24px;
+  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  display: grid;
+  place-items: center;
+  animation: np-pulse-glow 3.2s ease-out infinite;
+}
+
+.qrBox img {
+  width: clamp(260px, 40vw, 420px);
+  height: auto;
+  display: block;
+}
+
+.qrLoading {
+  width: clamp(260px, 40vw, 420px);
+  height: clamp(260px, 40vw, 420px);
+  display: grid;
+  place-items: center;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.steps {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  color: var(--muted);
+  font-size: 0.92rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 0.25rem;
+}
+
+.step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.stepNum {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  border: 1px solid var(--primary-ring);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.url {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-family: ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.statusDotOk {
+  background: var(--primary);
+  box-shadow: 0 0 10px var(--primary);
+}
+
+.err {
+  color: #fecdd3;
+}
+
+/* -- Result screens -- */
+.avatar {
+  width: clamp(140px, 20vw, 220px);
+  height: clamp(140px, 20vw, 220px);
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6);
+  display: grid;
+  place-items: center;
+  font-size: clamp(4rem, 7vw, 6.5rem);
+  font-weight: 800;
+  color: #fff;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.granted .avatar {
+  border-color: rgba(34, 224, 122, 0.6);
+  animation: np-pulse-glow 2s ease-out infinite;
+}
+
+.grantedLow .avatar {
+  border-color: rgba(254, 202, 202, 0.65);
+  animation: np-pulse-red 2s ease-out infinite;
+}
+
+.denied .avatar {
+  border-color: rgba(244, 63, 94, 0.55);
+  animation: np-pulse-red 2s ease-out infinite;
+}
+
+.resultTitle {
+  font-size: clamp(2.2rem, 4vw + 1rem, 4.2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0;
+  line-height: 1.02;
+  color: #fff;
+  text-shadow: 0 6px 30px rgba(0, 0, 0, 0.45);
+}
+
+.resultTitleWarn {
+  color: #fecaca;
+  text-shadow:
+    0 6px 30px rgba(0, 0, 0, 0.45),
+    0 0 40px rgba(244, 63, 94, 0.55);
+}
+
+.resultKioskWarn {
+  margin: -0.35rem 0 0;
+  font-size: clamp(1rem, 1.2vw + 0.85rem, 1.35rem);
+  font-weight: 700;
+  color: #fecaca;
+  max-width: 36ch;
+  line-height: 1.35;
+}
+
+.resultName {
+  font-size: clamp(1.4rem, 1.5vw + 1rem, 2.2rem);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+  margin: 0;
+}
+
+.resultLine {
+  font-size: clamp(1rem, 0.5vw + 0.9rem, 1.3rem);
+  color: rgba(255, 255, 255, 0.88);
+  margin: 0;
+  font-weight: 500;
+}
+
+.resultBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(8px);
+}
+
+.bigDays {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  color: #fff;
+}
+
+.bigDaysNum {
+  font-size: clamp(3rem, 4vw + 1rem, 5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-shadow: 0 6px 30px rgba(0, 0, 0, 0.45);
+}
+
+.bigDaysUnit {
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+.bigDaysLow .bigDaysNum {
+  color: #fecaca;
+  text-shadow:
+    0 6px 30px rgba(0, 0, 0, 0.45),
+    0 0 36px rgba(244, 63, 94, 0.65);
+}
+
+.bigDaysLow .bigDaysUnit {
+  color: rgba(254, 202, 202, 0.95);
+  opacity: 1;
+}

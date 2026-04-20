@@ -1,0 +1,239 @@
+// Datasource: PostgreSQL (Railway en producción, Postgres local en dev).
+// Si querés correr dev contra SQLite, cambiá temporalmente provider a
+// "sqlite" y DATABASE_URL a "file:./dev.db" — pero no commitees ese cambio
+// porque las migrations están generadas para Postgres.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --------------------------------------------------------------
+// Tenancy: un Gym agrupa usuarios (preparado para multi-tenant)
+// --------------------------------------------------------------
+model Gym {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  // Estado del gym en la plataforma. Se gestiona desde /platform por el
+  // superadmin. "active" = uso normal; "trial" = período de prueba;
+  // "suspended" = bloqueo de altas/pagos (lo existente sigue visible).
+  status      String    @default("active") // "active" | "trial" | "suspended"
+  trialEndsAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  users            User[]
+  payments         Payment[]
+  discounts        Discount[]
+  audits           AuditLog[]
+  cashCloses       CashClose[]
+  platformPayments PlatformPayment[]
+}
+
+// Nota: Prisma+SQLite no soporta enums nativos. Usamos String validado a nivel app
+// con Zod en los DTOs. Al migrar a PostgreSQL se pueden convertir a enums reales.
+
+model User {
+  id         String   @id @default(cuid())
+  name       String
+  email      String   @unique
+  password   String
+  role       String   @default("client") // "client" | "admin" | "superadmin"
+  photoUrl   String?
+  gymId      String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  gym              Gym           @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  memberships      Membership[]
+  qrCodes          QRCode[]
+  accessLogs       AccessLog[]
+  paymentsReceived Payment[]     @relation("PaymentCustomer")
+  paymentsAccepted Payment[]     @relation("PaymentAdmin")
+  discountsCreated Discount[]    @relation("DiscountCreator")
+  audits           AuditLog[]    @relation("AuditActor")
+  cashClosesDone   CashClose[]   @relation("CashCloseAdmin")
+  platformPaymentsRecorded PlatformPayment[] @relation("PlatformPaymentRecorder")
+
+  @@index([gymId])
+}
+
+model Membership {
+  id        String   @id @default(cuid())
+  userId    String
+  status    String   @default("active") // "active" | "expired" | "cancelled"
+  startDate DateTime @default(now())
+  endDate   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+}
+
+model QRCode {
+  id        String   @id @default(cuid())
+  userId    String
+  code      String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model AccessLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  gymId     String?
+  status    String   // "granted" | "denied"
+  reason    String?  // motivo si denied
+  timestamp DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([timestamp])
+  @@index([gymId])
+}
+
+// --------------------------------------------------------------
+// Pagos: el admin acepta pagos (cash, transfer, etc) y eso extiende
+// la membresía del socio. Guardamos snapshot del descuento aplicado
+// para poder auditar aunque el descuento se edite/borre después.
+// Montos en unidades enteras de la moneda (ARS = pesos sin centavos).
+// --------------------------------------------------------------
+model Payment {
+  id             String   @id @default(cuid())
+  gymId          String
+  gym            Gym      @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User     @relation("PaymentCustomer", fields: [userId], references: [id], onDelete: Cascade)
+  adminId        String
+  admin          User     @relation("PaymentAdmin", fields: [adminId], references: [id])
+  amount         Int      // total cobrado (tras descuento)
+  listAmount     Int      // precio de lista (antes de descuento)
+  currency       String   @default("ARS")
+  method         String   @default("cash") // "cash" | "transfer" | "card"
+  days           Int      // días de membresía agregados
+  discountId     String?
+  discount       Discount? @relation(fields: [discountId], references: [id])
+  discountCode   String?  // snapshot (p.ej. "VERANO20")
+  discountAmount Int?     // snapshot (pesos descontados)
+  note           String?
+  createdAt      DateTime @default(now())
+
+  @@index([gymId, createdAt])
+  @@index([userId, createdAt])
+}
+
+// --------------------------------------------------------------
+// Descuentos: pueden ser automáticos (aplican siempre mientras
+// active=true y esté dentro del rango de fechas) o por código
+// (el admin/cliente ingresa el code y se valida).
+// --------------------------------------------------------------
+model Discount {
+  id               String   @id @default(cuid())
+  gymId            String
+  gym              Gym      @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  name             String
+  kind             String   // "auto" | "code"
+  code             String?  // único por gym cuando kind="code"
+  percentOff       Int?     // 1..100
+  amountOff        Int?     // pesos fijos
+  active           Boolean  @default(true)
+  startsAt         DateTime?
+  endsAt           DateTime?
+  usageLimit       Int?
+  usageCount       Int      @default(0)
+  createdByAdminId String
+  createdBy        User     @relation("DiscountCreator", fields: [createdByAdminId], references: [id])
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  payments         Payment[]
+
+  @@unique([gymId, code])
+  @@index([gymId, active])
+  @@index([gymId, kind])
+}
+
+// --------------------------------------------------------------
+// Auditoría interna: toda acción del admin queda loggeada.
+// actorName es un snapshot por si el usuario luego se elimina.
+// meta es un JSON string (SQLite no soporta JSON nativo).
+// --------------------------------------------------------------
+// --------------------------------------------------------------
+// Cierre de caja: snapshot del efectivo recaudado en un período.
+// Un cierre marca el fin de un período de caja abierto; el próximo
+// período arranca justo después (closedAt). Guardamos también el
+// total de todos los métodos para auditoría completa.
+// --------------------------------------------------------------
+model CashClose {
+  id          String   @id @default(cuid())
+  gymId       String
+  gym         Gym      @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  adminId     String
+  admin       User     @relation("CashCloseAdmin", fields: [adminId], references: [id])
+  closedAt    DateTime @default(now())
+  periodStart DateTime? // null = desde el inicio de los tiempos (primer cierre)
+  periodEnd   DateTime  // igual a closedAt
+  cashTotal   Int       // suma de efectivo en el período
+  cashCount   Int       // cantidad de pagos en efectivo
+  totalAll    Int       // suma de todos los métodos (snapshot)
+  allCount    Int       // cantidad total de pagos
+  declaredCashTotal Int // efectivo contado al cierre (declarado por el admin)
+  note        String?
+  createdAt   DateTime  @default(now())
+
+  @@index([gymId, closedAt])
+}
+
+// --------------------------------------------------------------
+// Pagos de plataforma: el dueño del gym le paga a NaturalPack para
+// mantener activa su cuenta. Los registra el superadmin desde /platform
+// mientras no haya pasarela automática. Cuando se agregue Mercado Pago /
+// Stripe, los webhooks crearán estos registros en vez del superadmin.
+// --------------------------------------------------------------
+model PlatformPayment {
+  id               String   @id @default(cuid())
+  gymId            String
+  gym              Gym      @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  amount           Int      // monto cobrado
+  currency         String   @default("ARS")
+  method           String   @default("transfer") // "cash" | "transfer" | "card" | "mercadopago"
+  periodStart      DateTime?
+  periodEnd        DateTime?
+  note             String?
+  recordedByUserId String?
+  recordedBy       User?    @relation("PlatformPaymentRecorder", fields: [recordedByUserId], references: [id], onDelete: SetNull)
+  createdAt        DateTime @default(now())
+
+  @@index([gymId, createdAt])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  gymId       String
+  gym         Gym      @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  actorUserId String?
+  actor       User?    @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  actorName   String   // snapshot del nombre del usuario al momento del evento
+  action      String   // "user.create" | "payment.create" | "discount.create" | ...
+  targetType  String?  // "user" | "payment" | "discount"
+  targetId    String?
+  meta        String?  // JSON string con detalles del evento
+  createdAt   DateTime @default(now())
+
+  @@index([gymId, createdAt])
+  @@index([actorUserId])
+  @@index([action])
+}

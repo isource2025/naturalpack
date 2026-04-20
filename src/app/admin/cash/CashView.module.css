@@ -1,0 +1,383 @@
+.wrap {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.card {
+  padding: 1.25rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--bg-elev) 0%, var(--bg-1) 100%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.cardTitle {
+  margin: 0 0 0.25rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cardHint {
+  margin: 0 0 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* ----- Resumen de caja abierta ----- */
+
+.openBox {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    160deg,
+    rgba(16, 185, 129, 0.12) 0%,
+    rgba(16, 185, 129, 0.02) 60%
+  );
+  border: 1px solid var(--primary-ring);
+}
+
+@media (min-width: 560px) {
+  .openBox {
+    grid-template-columns: 1.4fr 1fr;
+    align-items: center;
+  }
+}
+
+.openMain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.openLabel {
+  font-size: 0.78rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.openAmount {
+  font-size: clamp(2rem, 8vw, 2.8rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--text);
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.openAmountCurrency {
+  font-size: 0.6em;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.openMeta {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.openSide {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.openRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius);
+  background: rgba(0, 0, 0, 0.25);
+  font-size: 0.85rem;
+}
+
+.openRow strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.closeFields {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 560px) {
+  .closeFields {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.sliderWrap {
+  width: 100%;
+}
+
+.noteInput {
+  width: 100%;
+}
+
+/* ----- Cierres previos ----- */
+
+.closesList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.closeItem {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius);
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  align-items: center;
+}
+
+.closeTop {
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.closeMeta {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.closeAmount {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  align-items: flex-end;
+}
+
+.closeAmountMain {
+  font-weight: 800;
+  color: var(--text);
+}
+
+.closeAmountSub {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* ----- Historial diario ----- */
+
+.dayList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.day {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-1);
+  overflow: hidden;
+}
+
+.dayHeader {
+  all: unset;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  transition: background-color 0.15s ease;
+}
+
+.dayHeader:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.dayHeader:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
+.dayCaret {
+  color: var(--muted);
+  transition: transform 0.2s ease;
+  display: inline-flex;
+}
+
+.dayCaretOpen {
+  transform: rotate(90deg);
+}
+
+.dayLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.dayDate {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 0.95rem;
+  text-transform: capitalize;
+}
+
+.daySub {
+  font-size: 0.78rem;
+  color: var(--muted);
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.dayTotals {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.dayCash {
+  font-weight: 800;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.dayAll {
+  font-size: 0.75rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.dayBody {
+  padding: 0 1rem 1rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dayMethodChips {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  padding-top: 0.75rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.chip strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.paymentRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.3rem 1rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius);
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--border);
+  align-items: center;
+}
+
+.paymentName {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.paymentMeta {
+  font-size: 0.75rem;
+  color: var(--muted);
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: 0.2rem;
+}
+
+.paymentAmount {
+  text-align: right;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.paymentTime {
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.ok,
+.err {
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.ok {
+  background: var(--primary-soft);
+  border: 1px solid var(--primary-ring);
+  color: #c1fbd4;
+}
+
+.err {
+  background: var(--danger-soft);
+  border: 1px solid var(--danger-ring);
+  color: #fecdd3;
+}
+
+.empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}

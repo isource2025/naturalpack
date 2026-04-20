@@ -1,0 +1,361 @@
+.main {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 3rem;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.5rem, 1.5vw + 1rem, 2rem);
+}
+
+.subtitle {
+  color: var(--muted);
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Mobile: cada panel se dimensiona por su contenido (sin scrolls internos),
+   la lista tiene un tope razonable para no comerse el viewport. */
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+/* Desktop: layout de dos columnas con alto fijo para que cada panel tenga
+   su propio scroll interno. Sólo a partir de 960px. */
+@media (min-width: 960px) {
+  .grid {
+    grid-template-columns: minmax(340px, 420px) 1fr;
+    height: calc(100vh - 190px);
+    min-height: 520px;
+  }
+}
+
+.panel {
+  background: linear-gradient(180deg, var(--bg-elev) 0%, var(--bg-1) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+@media (min-width: 960px) {
+  .panel {
+    overflow: hidden;
+  }
+}
+
+.listHead {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.listHead h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.liveOn {
+  background: var(--primary-soft);
+  border-color: var(--primary-ring);
+  color: #bbf7d0;
+}
+
+.liveOff {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--border-strong);
+  color: var(--muted);
+}
+
+.liveDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.liveOn .liveDot {
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--primary);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    transform: scale(1.3);
+    opacity: 0.7;
+  }
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  /* En mobile topamos la altura a ~55vh para que la lista pueda scrollear
+     sin empujar al detalle fuera de la pantalla. Desktop usa flex:1 y el
+     alto del grid padre. */
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+@media (min-width: 960px) {
+  .list {
+    max-height: none;
+    flex: 1;
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.85rem 1.1rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  transition: background 0.15s ease;
+  font-family: inherit;
+}
+
+.row:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.row:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.rowSelected {
+  background: var(--primary-soft) !important;
+  border-left: 3px solid var(--primary);
+  padding-left: calc(1.1rem - 3px);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--bg-2);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: 1px solid var(--border-strong);
+}
+
+.avatar.lg {
+  width: 84px;
+  height: 84px;
+  font-size: 2rem;
+  border-width: 2px;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rowBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.rowName {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rowTime {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.emptyState {
+  padding: 2rem 1.25rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.detailInner {
+  padding: 1.5rem;
+}
+
+@media (min-width: 960px) {
+  .detailInner {
+    overflow-y: auto;
+    flex: 1;
+  }
+}
+
+.detailHead {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.detailHead h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.section {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+.sectionTitle {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.5rem;
+}
+
+.stats {
+  display: flex;
+  gap: 1.5rem;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.statBig {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.statBig.ok {
+  color: #a7f3d0;
+}
+.statBig.bad {
+  color: #fecdd3;
+}
+
+.criticalNote {
+  margin: 0.35rem 0 0;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius);
+  background: var(--danger-soft);
+  border: 1px solid var(--danger-ring);
+  color: #fecdd3;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.history li {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.9rem;
+}
+
+.hdot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.hdot.granted {
+  background: var(--primary);
+}
+.hdot.denied {
+  background: var(--danger);
+}
+
+.hTime {
+  flex: 1;
+  color: var(--text-dim);
+}
+
+.hint {
+  color: var(--muted);
+  margin: 0;
+}
+
+.emptyDetail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 3rem 1.5rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (min-width: 960px) {
+  .emptyDetail {
+    height: 100%;
+  }
+}
+
+.emptyIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}

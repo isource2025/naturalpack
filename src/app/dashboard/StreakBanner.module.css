@@ -1,0 +1,169 @@
+.wrap {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  padding: 1rem clamp(0.95rem, 3.5vw, 1.35rem);
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg, var(--bg-elev) 0%, var(--bg-1) 100%);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: var(--shadow);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wrap.active {
+  border-color: rgba(251, 146, 60, 0.55);
+  box-shadow: 0 10px 30px -12px rgba(249, 115, 22, 0.45);
+}
+
+.wrap.atRisk {
+  border-color: rgba(250, 204, 21, 0.55);
+}
+
+.wrap.broken {
+  border-color: var(--border);
+}
+
+.wrap.loading {
+  opacity: 0.75;
+}
+
+.flameBox {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle, rgba(249, 115, 22, 0.28) 0%, rgba(249, 115, 22, 0) 70%);
+  color: #fdba74;
+}
+
+.wrap.active .flameBox {
+  color: #fb923c;
+  animation: flamePulse 1.6s ease-in-out infinite;
+}
+
+.wrap.broken .flameBox {
+  color: var(--muted);
+  background: rgba(136, 150, 172, 0.1);
+}
+
+.wrap.atRisk .flameBox {
+  color: var(--accent);
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.topRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.count {
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.wrap.active .count {
+  background: linear-gradient(90deg, #fb923c, #facc15);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.unit {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.title {
+  color: var(--text);
+  font-weight: 700;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.sub {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.bar {
+  margin-top: 0.55rem;
+  height: 6px;
+  width: 100%;
+  background: var(--bg-2);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.barFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.wrap.broken .barFill {
+  background: var(--border-strong);
+}
+
+.wrap.atRisk .barFill {
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent-strong) 100%);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.35rem;
+}
+
+@keyframes flamePulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@media (max-width: 420px) {
+  .wrap {
+    padding: 0.9rem;
+    gap: 0.75rem;
+  }
+  .flameBox {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+  }
+  .count {
+    font-size: 1.6rem;
+  }
+  .title {
+    font-size: 0.95rem;
+  }
+}

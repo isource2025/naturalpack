@@ -1,0 +1,51 @@
+{
+  "name": "naturalpack-gym-saas",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Gym SaaS MVP con control de acceso por QR y modo Kiosk en tiempo real",
+  "scripts": {
+    "dev": "next dev",
+    "dev:https": "next dev --experimental-https",
+    "build": "prisma generate && prisma migrate deploy && next build",
+    "start": "next start -p ${PORT:-3000}",
+    "lint": "next lint",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "db:seed": "tsx prisma/seed.ts",
+    "create-superadmin": "tsx scripts/create-superadmin.ts",
+    "copy:qr-worker": "node scripts/copy-qr-worker.mjs",
+    "postinstall": "prisma generate && node scripts/copy-qr-worker.mjs"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "bcryptjs": "^2.4.3",
+    "canvas-confetti": "^1.9.4",
+    "framer-motion": "^12.38.0",
+    "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^1.8.0",
+    "next": "14.2.15",
+    "qr-scanner": "^1.4.2",
+    "qrcode": "^1.5.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^20.17.6",
+    "@types/qrcode": "^1.5.5",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "14.2.15",
+    "prisma": "^5.22.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

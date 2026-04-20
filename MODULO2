@@ -1,0 +1,84 @@
+Extiende la aplicación agregando un modo "Kiosk" para visualización en pantalla de control de acceso.
+
+## 🎯 Objetivo
+
+Cuando se escanee un QR, mostrar en una pantalla (kiosk) la información del usuario validado en tiempo real.
+
+## 🖥️ Nueva funcionalidad
+
+### Ruta Frontend
+
+* Crear página: /kiosk
+* Debe ser fullscreen
+* Diseño optimizado para TV/monitor
+* Sin necesidad de login (modo controlado por red local o token)
+
+### UI Estados
+
+1. Acceso permitido:
+
+   * Foto del usuario (grande)
+   * Nombre
+   * Mensaje: "Acceso permitido"
+   * Días restantes de membresía
+   * Fondo verde
+
+2. Acceso denegado:
+
+   * Mensaje: "Acceso denegado"
+   * Motivo (membresía vencida / no encontrado)
+   * Fondo rojo
+
+## 🔌 Comunicación en tiempo real
+
+Implementar WebSockets:
+
+* Backend emite evento: "access:result"
+* Frontend kiosk escucha eventos y actualiza UI
+
+Alternativa MVP:
+
+* Polling cada 2 segundos a endpoint /api/access/last
+
+## 📡 Backend
+
+Modificar endpoint:
+
+POST /api/access/validate
+
+Debe:
+
+* Validar QR
+* Registrar acceso
+* Emitir evento con payload UI-ready
+
+## 🧾 Payload esperado
+
+{
+status: "granted" | "denied",
+user: {
+name: string,
+photoUrl: string
+},
+membership: {
+daysRemaining: number
+},
+message: string
+}
+
+## 🎨 UX
+
+* Transiciones suaves
+* Reset automático a estado idle luego de 5 segundos
+* Manejo de estado vacío ("Esperando escaneo...")
+
+## 🧠 Consideraciones
+
+* Preparar para múltiples kiosks (escalabilidad)
+* Separar lógica UI de lógica de negocio
+* Evitar exponer datos sensibles en el cliente
+
+Resultado esperado:
+
+* Flujo completo funcionando:
+  escaneo → validación → pantalla actualizada en tiempo real

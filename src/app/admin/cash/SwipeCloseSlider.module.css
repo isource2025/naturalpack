@@ -1,0 +1,84 @@
+.track {
+  position: relative;
+  width: 100%;
+  height: 56px;
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(0, 0, 0, 0.35) 100%
+  );
+  border: 1px solid var(--border-strong);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  user-select: none;
+  touch-action: none;
+}
+
+.trackDisabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.trackLabel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  padding-left: 3.5rem;
+  padding-right: 1rem;
+}
+
+.thumb {
+  position: absolute;
+  top: 50%;
+  left: 6px;
+  width: 48px;
+  height: 48px;
+  margin-top: -24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary) 0%, #10b981 100%);
+  color: #07090d;
+  display: grid;
+  place-items: center;
+  box-shadow:
+    0 4px 14px rgba(34, 224, 122, 0.45),
+    0 2px 4px rgba(0, 0, 0, 0.35);
+  cursor: grab;
+  touch-action: none;
+  z-index: 2;
+  will-change: transform;
+}
+
+.thumb:active {
+  cursor: grabbing;
+}
+
+.thumbSmooth {
+  transition: transform 0.28s cubic-bezier(0.25, 0.9, 0.25, 1);
+}
+
+.spin {
+  animation: spin 0.85s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thumbSmooth {
+    transition: none;
+  }
+  .spin {
+    animation: none;
+  }
+}

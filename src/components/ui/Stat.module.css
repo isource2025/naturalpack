@@ -1,0 +1,42 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.value {
+  font-size: clamp(2.2rem, 3vw + 1rem, 3.5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.unit {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-left: 0.4rem;
+  font-weight: 500;
+}
+
+.label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.tone-success .value {
+  color: #a7f3d0;
+  text-shadow: 0 0 24px rgba(34, 224, 122, 0.35);
+}
+
+.tone-danger .value {
+  color: #fecdd3;
+  text-shadow: 0 0 24px rgba(244, 63, 94, 0.35);
+}
+
+.tone-accent .value {
+  color: #fef3c7;
+  text-shadow: 0 0 24px rgba(250, 204, 21, 0.3);
+}

@@ -1,0 +1,125 @@
+.btn {
+  --btn-bg: var(--primary);
+  --btn-fg: #0a1008;
+  --btn-border: transparent;
+  --btn-hover: var(--primary-600);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.1rem;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  border: 1px solid var(--btn-border);
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.12s ease, background 0.15s ease, box-shadow 0.15s ease,
+    border-color 0.15s ease, opacity 0.15s ease;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.btn:hover {
+  background: var(--btn-hover);
+  text-decoration: none;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--primary-ring);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+  transform: none;
+}
+
+/* -- sizes -- */
+.size-sm {
+  padding: 0.5rem 0.85rem;
+  font-size: 0.85rem;
+  border-radius: var(--radius-sm);
+}
+.size-md {
+  /* default */
+}
+.size-lg {
+  padding: 1rem 1.4rem;
+  font-size: 1.05rem;
+  border-radius: var(--radius);
+}
+.size-xl {
+  padding: 1.25rem 1.6rem;
+  font-size: 1.15rem;
+  border-radius: var(--radius-lg);
+}
+
+/* -- variants -- */
+.primary {
+  --btn-bg: var(--primary);
+  --btn-fg: #08140c;
+  --btn-hover: var(--primary-600);
+  box-shadow: 0 8px 22px -10px rgba(34, 224, 122, 0.55);
+}
+
+.secondary {
+  --btn-bg: var(--bg-elev);
+  --btn-fg: var(--text);
+  --btn-border: var(--border-strong);
+  --btn-hover: #1f2a3d;
+}
+
+.ghost {
+  --btn-bg: transparent;
+  --btn-fg: var(--text);
+  --btn-border: transparent;
+  --btn-hover: rgba(255, 255, 255, 0.06);
+}
+
+.danger {
+  --btn-bg: var(--danger);
+  --btn-fg: #fff;
+  --btn-hover: var(--danger-600);
+  box-shadow: 0 8px 22px -10px rgba(244, 63, 94, 0.55);
+}
+
+.accent {
+  --btn-bg: var(--accent);
+  --btn-fg: #1a1402;
+  --btn-hover: var(--accent-strong);
+  box-shadow: 0 8px 22px -10px rgba(250, 204, 21, 0.55);
+}
+
+.full {
+  width: 100%;
+}
+
+.loading {
+  pointer-events: none;
+}
+
+.spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: btn-spin 0.7s linear infinite;
+}
+
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

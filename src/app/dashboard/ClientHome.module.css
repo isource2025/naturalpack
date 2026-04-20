@@ -1,0 +1,328 @@
+/* --- Tarjeta de membresía (HeroBanner + video) --- */
+
+.heroMembership {
+  /* Sobre el min-height del HeroBanner para caber la tarjeta de membresía */
+  min-height: 280px !important;
+}
+
+@media (min-width: 560px) {
+  .heroMembership {
+    min-height: 320px !important;
+  }
+}
+
+.heroMembershipActive {
+  border-color: var(--primary-ring);
+  box-shadow:
+    var(--shadow),
+    0 0 0 1px rgba(34, 224, 122, 0.12),
+    0 12px 40px rgba(34, 224, 122, 0.08);
+}
+
+.heroMembershipCritical {
+  border-color: var(--danger-ring);
+  box-shadow:
+    var(--shadow),
+    0 0 0 1px rgba(244, 63, 94, 0.22),
+    0 12px 36px rgba(244, 63, 94, 0.12);
+}
+
+.heroMembershipExpired {
+  border-color: rgba(244, 63, 94, 0.45);
+  box-shadow:
+    var(--shadow),
+    0 0 0 1px rgba(244, 63, 94, 0.1);
+}
+
+/* Solo layout: la opacidad va en el overlay del video (HeroBanner), no aquí */
+.memHeroStack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 560px) {
+  .memHeroStack {
+    max-width: min(520px, 100%);
+  }
+}
+
+.memHeroKicker {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+}
+
+.memHeroDivider {
+  width: 100%;
+  max-width: min(420px, 100%);
+  height: 1px;
+  margin: 0.15rem 0 0.35rem;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.18) 20%,
+    rgba(255, 255, 255, 0.18) 80%,
+    transparent
+  );
+}
+
+.memHeroBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  max-width: 100%;
+}
+
+.memHeroRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.memHeroStatLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(230, 237, 247, 0.88);
+  text-shadow:
+    0 0 12px rgba(0, 0, 0, 0.85),
+    0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+@media (min-width: 400px) {
+  .memHeroStatLabel {
+    font-size: 0.78rem;
+  }
+}
+
+.memHeroBig {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+}
+
+.memHeroBigVal {
+  font-size: clamp(2.1rem, 9vw + 0.5rem, 3.6rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.memHeroBigOk {
+  color: rgba(186, 244, 216, 0.96);
+  text-shadow:
+    0 0 24px rgba(34, 224, 122, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.75);
+}
+
+.memHeroBigBad {
+  color: rgba(254, 205, 211, 0.96);
+  text-shadow:
+    0 0 24px rgba(244, 63, 94, 0.45),
+    0 2px 8px rgba(0, 0, 0, 0.75);
+}
+
+.memHeroBigUnit {
+  color: rgba(220, 228, 240, 0.82);
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+  font-weight: 500;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
+}
+
+.memHeroFoot {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: rgba(232, 238, 248, 0.9);
+  max-width: 42ch;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.65);
+}
+
+.memHeroFootWarn {
+  color: rgba(254, 205, 211, 0.95);
+  font-weight: 600;
+  text-shadow:
+    0 0 12px rgba(244, 63, 94, 0.35),
+    0 1px 4px rgba(0, 0, 0, 0.65);
+}
+
+.memHeroRange {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.15rem;
+  padding-top: 0.55rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.2);
+  font-size: clamp(0.75rem, 2.8vw, 0.82rem);
+  color: rgba(218, 226, 238, 0.82);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+}
+
+.bannerTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  background: var(--primary-soft);
+  border: 1px solid var(--primary-ring);
+  color: #bbf7d0;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.bannerTitle {
+  font-size: clamp(1.45rem, 4.5vw + 0.65rem, 2.2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.96);
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.85),
+    0 8px 28px rgba(0, 0, 0, 0.55);
+  line-height: 1.15;
+}
+
+.bannerSub {
+  color: rgba(218, 226, 240, 0.92);
+  margin: 0;
+  font-size: clamp(0.86rem, 2.6vw, 0.94rem);
+  max-width: 36ch;
+  line-height: 1.45;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
+}
+
+.bannerSubWarn {
+  color: rgba(254, 202, 202, 0.95);
+  font-weight: 600;
+  text-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.7),
+    0 2px 16px rgba(244, 63, 94, 0.45);
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 2rem 0 0.75rem;
+}
+
+.hiwList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.hiwItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+}
+
+.hiwNum {
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  border: 1px solid var(--primary-ring);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.hiwIcon {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  border: 1px solid var(--primary-ring);
+}
+
+.entryGrid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 760px) {
+  .entryGrid {
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+  }
+}
+
+.entryCard {
+  position: relative;
+  padding-top: clamp(1.1rem, 2.5vw, 1.35rem);
+}
+
+.entryCard .actionTitle {
+  font-size: clamp(1.05rem, 0.6vw + 0.95rem, 1.2rem);
+}
+
+.entryIcon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: var(--primary-soft);
+  border: 1px solid var(--primary-ring);
+  color: var(--primary);
+  margin-bottom: 0.25rem;
+}
+
+.actionCard {
+  padding: 1.25rem clamp(1rem, 3.8vw, 1.5rem);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--bg-elev) 0%, var(--bg-1) 100%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.actionTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0;
+}

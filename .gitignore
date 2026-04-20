@@ -1,0 +1,26 @@
+node_modules
+.next
+out
+dist
+
+# env
+.env
+.env.local
+.env.*.local
+
+# db (sqlite artifacts de dev antiguo)
+prisma/dev.db
+prisma/dev.db-journal
+*.sqlite
+*.sqlite-journal
+
+# vercel / deploy tooling
+.vercel
+.turbo
+
+# misc
+.DS_Store
+.vscode
+.idea
+*.log
+*.tsbuildinfo

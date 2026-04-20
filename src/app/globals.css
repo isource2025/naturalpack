@@ -1,0 +1,242 @@
+/* ================================================================
+   NaturalPack — Design Tokens + Resets globales
+   ----------------------------------------------------------------
+   Solo vive aquí lo que es verdaderamente global:
+    - Variables CSS (tokens de color, tipografía, radios, sombras)
+    - Resets
+    - Defaults del <body> y la tipografía
+    - Keyframes compartidos
+   Todo lo específico de un módulo/vista vive en su propio
+   `<nombre>.module.css`.
+   ================================================================ */
+
+:root {
+  /* -- paleta base: dark fitness -- */
+  --bg: #07090d;
+  --bg-1: #0e131b;
+  --bg-2: #151c27;
+  --bg-elev: #182030;
+  --surface: #1b2333;
+  --border: #242e42;
+  --border-strong: #33405c;
+
+  /* -- tipografía -- */
+  --text: #f1f5f9;
+  --text-dim: #c1cbdc;
+  --muted: #8896ac;
+
+  /* -- brand: verde enérgico + amarillo acento -- */
+  --primary: #22e07a;          /* verde neón-fitness */
+  --primary-600: #16c96a;
+  --primary-700: #0f9d53;
+  --primary-soft: rgba(34, 224, 122, 0.14);
+  --primary-ring: rgba(34, 224, 122, 0.35);
+
+  --accent: #facc15;           /* amarillo energía */
+  --accent-soft: rgba(250, 204, 21, 0.15);
+  --accent-strong: #f59e0b;
+
+  --danger: #f43f5e;           /* rojo intenso */
+  --danger-600: #e11d48;
+  --danger-soft: rgba(244, 63, 94, 0.14);
+  --danger-ring: rgba(244, 63, 94, 0.4);
+
+  /* -- radios, sombras, espaciados -- */
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.55),
+            0 2px 6px -2px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 24px 60px -20px rgba(0, 0, 0, 0.7),
+               0 10px 20px -10px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 0 0 4px var(--primary-ring);
+
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+
+  color-scheme: dark;
+}
+
+/* -- resets mínimos -- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: radial-gradient(
+      1200px 600px at 10% -10%,
+      rgba(34, 224, 122, 0.08),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 500px at 110% 10%,
+      rgba(250, 204, 21, 0.05),
+      transparent 60%
+    ),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  line-height: 1.55;
+}
+
+body {
+  font-size: 15px;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* -- tipografía base -- */
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(1.8rem, 2.4vw + 1rem, 2.6rem);
+}
+h2 {
+  font-size: clamp(1.35rem, 1.2vw + 1rem, 1.7rem);
+}
+h3 {
+  font-size: 1.1rem;
+}
+
+p {
+  margin: 0;
+}
+
+/* Listas: el padding/margin por defecto del navegador en <ul>/<ol> deja
+   un hueco grande a la izquierda; lo reseteamos globalmente. Los módulos
+   que necesiten viñetas pueden definir list-style y padding en su CSS. */
+ul,
+ol {
+  margin: 0;
+  padding-inline-start: 0;
+  padding-left: 0;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+::selection {
+  background: var(--primary-soft);
+  color: var(--text);
+}
+
+/* -- scrollbar sutil en zonas scrollables -- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+}
+
+/* -- helpers globales (muy pocos, los mínimos imprescindibles) -- */
+.container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-top: 1.5rem;
+  padding-bottom: 3rem;
+  padding-left: max(1.125rem, calc(0.65rem + env(safe-area-inset-left, 0px)));
+  padding-right: max(1.125rem, calc(0.65rem + env(safe-area-inset-right, 0px)));
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.error {
+  background: var(--danger-soft);
+  color: #ffe1e6;
+  border: 1px solid var(--danger-ring);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.85rem;
+  font-size: 0.9rem;
+}
+
+/* Reset de <button> base para no tener que hacerlo en cada módulo */
+button {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* Reduced-motion global */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Keyframes compartidos */
+@keyframes np-pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 224, 122, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 18px rgba(34, 224, 122, 0);
+  }
+}
+
+@keyframes np-pulse-red {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 18px rgba(244, 63, 94, 0);
+  }
+}
+
+@keyframes np-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}

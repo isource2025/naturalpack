@@ -1,0 +1,137 @@
+Actúa como un arquitecto de software senior especializado en aplicaciones SaaS escalables.
+
+Quiero que generes una aplicación full stack para la gestión de membresías de un gimnasio (Gym SaaS), enfocada inicialmente en resolver un problema concreto: el control de acceso mediante QR.
+
+## 🧩 Stack Tecnológico
+
+* Frontend: Next.js (App Router) + TypeScript
+* Backend: Node.js (API Routes o capa separada escalable)
+* Base de datos: PostgreSQL (prioridad) con ORM Prisma
+* Alternativa simple inicial: JSON local, pero diseñar preparado para migrar a SQL sin refactor mayor
+* Autenticación: JWT o NextAuth
+* Infraestructura: preparada para deploy en Railway
+* Arquitectura: modular, desacoplada y escalable (estilo SaaS multi-tenant ready aunque no se implemente completo en MVP)
+
+## 🎯 Objetivo del MVP
+
+Resolver el flujo básico de membresía y acceso:
+
+1. Registro de usuario (cliente del gimnasio)
+2. Generación automática de un código QR único por usuario
+3. Visualización del QR desde el frontend (usuario logueado)
+4. Endpoint para validar QR (simula un lector en la entrada del gimnasio)
+5. Registro de eventos de acceso (check-in)
+
+## 🧱 Modelado de Datos (pensado para escalar)
+
+Diseñar entidades mínimas pero escalables:
+
+* User
+
+  * id
+  * name
+  * email
+  * password (hash)
+  * role (admin | client)
+  * gymId (pensando multi-tenant)
+
+* Membership
+
+  * id
+  * userId
+  * status (active, expired)
+  * startDate
+  * endDate
+
+* QRCode
+
+  * id
+  * userId
+  * code (string único)
+  * active
+
+* AccessLog
+
+  * id
+  * userId
+  * timestamp
+  * status (granted / denied)
+
+* Gym (opcional pero preparado para SaaS)
+
+  * id
+  * name
+
+## 🔁 Flujos principales
+
+### 1. Registro/Login
+
+* Registro con email/password
+* Login que devuelve JWT
+* Middleware para proteger rutas
+
+### 2. Generación de QR
+
+* Al crear usuario, generar automáticamente un código QR único
+* Usar librería (ej: qrcode)
+* Guardar el valor del QR en DB (no la imagen)
+
+### 3. Visualización
+
+* Dashboard simple:
+
+  * Datos del usuario
+  * Estado de membresía
+  * QR renderizado
+
+### 4. Validación de acceso
+
+* Endpoint: POST /api/access/validate
+* Recibe: código QR
+* Valida:
+
+  * Usuario existe
+  * Membresía activa
+* Registra resultado en AccessLog
+
+## 🧠 Buenas prácticas obligatorias
+
+* Clean Architecture (separar controllers, services, repositories)
+* DTOs y validaciones (zod o similar)
+* Manejo de errores centralizado
+* Variables de entorno (.env)
+* Código tipado (TypeScript estricto)
+* Preparado para escalar a microservicios
+
+## 📦 Estructura de carpetas sugerida
+
+/apps
+/web (Next.js frontend)
+/api (Node backend o API routes)
+
+/packages
+/db (Prisma schema)
+/shared (tipos, utils)
+
+## 🚀 Deploy
+
+* Configurar para Railway:
+
+  * Variables de entorno
+  * Conexión a PostgreSQL
+* Scripts de build y start
+
+## 🧪 Extras opcionales (si hay tiempo)
+
+* Generación de "racha" de asistencia (streaks)
+* Panel admin básico
+* Webhook o logs de auditoría
+
+## 🎯 Resultado esperado
+
+* Código listo para correr localmente
+* README claro con pasos
+* Seed inicial
+* Endpoints documentados
+
+Prioriza simplicidad sin sacrificar escalabilidad. Evita sobreingeniería, pero deja la base lista para crecer a SaaS multi gimnasio.
