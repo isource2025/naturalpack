@@ -56,5 +56,28 @@ Documentación: README.md → "Deploy a producción (Railway + Vercel)"
   process.exit(1);
 }
 
+// Railway expone dos URLs: la interna (.railway.internal) solo sirve entre
+// servicios dentro del mismo proyecto Railway. Vercel corre fuera de esa red.
+if (db.includes(".railway.internal") || db.includes("railway.internal")) {
+  console.error(`
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+❌ DATABASE_URL apunta a la red privada de Railway (*.railway.internal).
+
+Esa URL solo funciona si la app también corre en Railway. Vercel no puede
+alcanzarla → \`prisma migrate deploy\` falla en el build.
+
+Solución en Railway (servicio Postgres → Variables):
+  • Usá el valor de DATABASE_PUBLIC_URL (host tipo *.proxy.rlwy.net y puerto
+    público), O la "Public Network" / connection string externa.
+
+En Vercel la variable debe seguir llamándose DATABASE_URL (así lo espera
+Prisma), pero el VALOR tiene que ser la URL pública, no la interna.
+
+Opcional: agregá ?sslmode=require al final si Railway lo documenta para tu plan.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`);
+  process.exit(1);
+}
+
 run("npx prisma migrate deploy");
 run("npx next build");

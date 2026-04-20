@@ -271,9 +271,13 @@ servicio aparte; Vercel se conecta por internet usando `DATABASE_URL`.
    **Database** → **PostgreSQL**).
 3. Esperá a que el servicio quede **Active / Healthy** (icono verde).
 4. Abrí el **servicio Postgres** (no confundir con un futuro servicio web).
-5. Tab **Variables** (o **Connect**) → copiá **`DATABASE_URL`**. Debe empezar con
-   `postgresql://` o `postgres://`. Guardala en un gestor de notas: la vas a
-   pegar en Vercel en la Fase 3.
+5. Tab **Variables** (o **Connect**). Railway suele dar **dos** URLs:
+   - **`DATABASE_URL`** → host `*.railway.internal` → **solo red privada**
+     entre servicios que corren **en Railway** (no sirve para Vercel ni tu PC).
+   - **`DATABASE_PUBLIC_URL`** → host tipo `*.proxy.rlwy.net` y puerto público →
+     **esta es la que usás en Vercel** y en tu `.env` local para `migrate deploy`.
+   Copiá la pública; debe empezar con `postgresql://`. Guardala: la vas a pegar
+   en Vercel en la Fase 3 (como variable **`DATABASE_URL`**, con ese valor).
 6. **Networking (importante para Vercel):** en el Postgres, asegurate de que
    exista **Public networking** / URL pública si tu plan lo requiere. Sin
    acceso de red externa, Vercel no podrá conectar durante el build
@@ -290,7 +294,8 @@ Antes de Vercel, conviene verificar que la DB responde y dejar el schema aplicad
 
 ```bash
 # En la raíz del repo, en tu .env (solo en tu máquina, no se sube a git):
-DATABASE_URL="postgresql://...copiá exacto desde Railway..."
+# Usá DATABASE_PUBLIC_URL de Railway (no la *.railway.internal).
+DATABASE_URL="postgresql://...copiá DATABASE_PUBLIC_URL desde Railway..."
 
 npx prisma migrate deploy
 
@@ -314,12 +319,16 @@ superadmin anotadas.
 1. Andá a <https://vercel.com> → **Add New** → **Project** → importá
    `github.com/isource2025/naturalpack`.
 2. Framework: **Next.js**.
-3. **Environment variables** — misma `DATABASE_URL` que en Railway, más el resto.
-   No uses placeholders tipo `EXAMPLE_NAME`. Sin `DATABASE_URL` el build falla.
+3. **Environment variables** — el **valor** de `DATABASE_URL` tiene que ser la
+   URL **pública** de Railway (`DATABASE_PUBLIC_URL`), no la interna
+   (`postgres.railway.internal`). Sin eso, `prisma migrate deploy` en el build
+   no puede conectar. No hace falta correr migraciones a mano antes: el primer
+   deploy las aplica solo si la URL es alcanzable desde internet.
+   Eliminá variables de ejemplo (`EXAMPLE_NAME`) que no use el código.
 
    | Nombre                  | Valor                                                   |
    | ----------------------- | ------------------------------------------------------- |
-   | `DATABASE_URL`          | Igual que en Railway (cadena completa)                  |
+   | `DATABASE_URL`          | Valor de **`DATABASE_PUBLIC_URL`** en Railway (host `*.rlwy.net` o similar) |
    | `JWT_SECRET`            | `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` |
    | `JWT_EXPIRES_IN`        | `7d`                                                    |
    | `ACCESS_READER_TOKEN`   | Token random para el lector físico                      |
@@ -337,10 +346,10 @@ superadmin anotadas.
 
 ### Troubleshooting
 
-- **`Error: P1001 Can't reach database server`** en el build de Vercel → la
-  `DATABASE_URL` está mal o Railway bloqueó conexiones por IP. Chequeá que
-  esté exactamente como la da Railway (incluye `?sslmode=require` si es plan
-  dedicado).
+- **`Error: P1001 Can't reach database server`** o timeout en el build de Vercel
+  → casi siempre es **URL interna** (`*.railway.internal`) en lugar de la
+  **pública**. Usá `DATABASE_PUBLIC_URL` como valor de `DATABASE_URL` en Vercel.
+  Si sigue fallando, probá agregar `?sslmode=require` al final de la URL.
 - **Schema cambió pero Vercel no corre migrations** → verificá que `build` en
   `package.json` incluya `prisma migrate deploy`. Redeploya desde Vercel.
 - **Cambiaste el schema localmente y no tenés migration** → correr
