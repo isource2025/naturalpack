@@ -1,18 +1,28 @@
 .wrap {
   position: relative;
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   grid-template-columns: 1fr;
 }
 
+/* Hero: public/img/gym1.jpg — foto vertical del gym (cartel arriba). */
 .bgLayer {
   position: absolute;
   inset: 0;
   background-image: url("/img/gym1.jpg");
   background-size: cover;
-  background-position: center;
-  filter: saturate(1.05) brightness(0.65);
+  background-position: center 18%;
+  background-repeat: no-repeat;
+  filter: saturate(1.06) brightness(0.62);
   z-index: -2;
+}
+
+@media (max-width: 959px) {
+  .bgLayer {
+    /* En móvil priorizamos la parte superior (mensaje / ambiente). */
+    background-position: center 12%;
+  }
 }
 
 .scrim {
@@ -20,16 +30,33 @@
   inset: 0;
   background: linear-gradient(
       115deg,
-      rgba(7, 9, 13, 0.95) 0%,
-      rgba(7, 9, 13, 0.7) 48%,
-      rgba(7, 9, 13, 0.2) 100%
+      rgba(7, 9, 13, 0.92) 0%,
+      rgba(7, 9, 13, 0.72) 42%,
+      rgba(7, 9, 13, 0.35) 100%
     ),
     radial-gradient(
-      700px 400px at 12% 25%,
-      rgba(34, 224, 122, 0.15),
-      transparent 60%
+      700px 400px at 12% 22%,
+      rgba(34, 224, 122, 0.12),
+      transparent 58%
     );
   z-index: -1;
+}
+
+@media (max-width: 959px) {
+  .scrim {
+    /* Más foto visible detrás del formulario en login/register móvil. */
+    background: linear-gradient(
+        180deg,
+        rgba(7, 9, 13, 0.45) 0%,
+        rgba(7, 9, 13, 0.82) 55%,
+        rgba(7, 9, 13, 0.92) 100%
+      ),
+      radial-gradient(
+        520px 380px at 50% 15%,
+        rgba(34, 224, 122, 0.1),
+        transparent 55%
+      );
+  }
 }
 
 .panel {
@@ -52,6 +79,15 @@
   background: color-mix(in srgb, var(--bg) 82%, transparent);
   backdrop-filter: blur(10px);
   border-right: 1px solid var(--border);
+}
+
+@media (max-width: 959px) {
+  .left {
+    /* Deja traslucir gym1.jpg detrás del formulario. */
+    background: color-mix(in srgb, var(--bg) 58%, transparent);
+    backdrop-filter: blur(14px);
+    border-right: none;
+  }
 }
 
 .brand {
