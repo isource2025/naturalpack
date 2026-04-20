@@ -75,15 +75,7 @@ export default function ClientHome({
         overlay="strong"
       >
         <div className={styles.memHeroStack}>
-          <span className={styles.bannerTag}>
-            <Flame size={14} /> Hoy se entrena
-          </span>
           <h1 className={styles.bannerTitle}>¡Hola, {first}! 👊</h1>
-          <p
-            className={`${styles.bannerSub} ${critical ? styles.bannerSubWarn : ""}`}
-          >
-            {motivationalText(status, days, name)}
-          </p>
 
           <div className={styles.memHeroDivider} aria-hidden />
 
