@@ -42,6 +42,28 @@
   z-index: -1;
 }
 
+/* Desktop: menos velo a la derecha para que se vea gym1.jpg en la columna del quote. */
+@media (min-width: 960px) {
+  .scrim {
+    background: linear-gradient(
+        100deg,
+        rgba(7, 9, 13, 0.9) 0%,
+        rgba(7, 9, 13, 0.65) 36%,
+        rgba(7, 9, 13, 0.22) 52%,
+        rgba(7, 9, 13, 0.35) 100%
+      ),
+      radial-gradient(
+        900px 600px at 78% 35%,
+        rgba(34, 224, 122, 0.1),
+        transparent 55%
+      );
+  }
+
+  .bgLayer {
+    filter: saturate(1.08) brightness(0.78);
+  }
+}
+
 @media (max-width: 959px) {
   .scrim {
     /* Más foto visible detrás del formulario en login/register móvil. */
@@ -60,9 +82,12 @@
 }
 
 .panel {
+  position: relative;
+  z-index: 0;
   display: grid;
   grid-template-columns: 1fr;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 @media (min-width: 960px) {
@@ -166,15 +191,31 @@
 @media (min-width: 960px) {
   .right {
     display: flex;
+    position: relative;
+    /* Misma foto que el hero: asegura que la columna derecha muestre el gym
+       aunque el stacking del fondo global falle en algún navegador. */
+    background-image: linear-gradient(
+        180deg,
+        rgba(7, 9, 13, 0.15) 0%,
+        rgba(7, 9, 13, 0.55) 45%,
+        rgba(7, 9, 13, 0.82) 100%
+      ),
+      url("/img/gym1.jpg");
+    background-size: cover;
+    background-position: center 18%;
+    background-repeat: no-repeat;
   }
 }
 
 .quote {
+  position: relative;
+  z-index: 1;
   max-width: 32ch;
   font-size: clamp(1.4rem, 1.6vw + 1rem, 2rem);
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.15;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.85);
 }
 
 .quoteAccent {
@@ -182,6 +223,9 @@
 }
 
 .quoteCaption {
+  position: relative;
+  z-index: 1;
   color: var(--muted);
   font-size: 0.9rem;
+  text-shadow: 0 1px 16px rgba(0, 0, 0, 0.9);
 }
