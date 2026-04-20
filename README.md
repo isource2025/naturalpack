@@ -295,7 +295,11 @@ gestionar los gyms desde `/platform` una vez desplegado.
 1. Andá a <https://vercel.com> → **Add New** → **Project** → importá
    `github.com/isource2025/naturalpack`.
 2. Framework: **Next.js** (lo detecta solo).
-3. Configurá las variables de entorno (tab **Environment Variables**):
+3. **Importante:** en la pantalla de configuración, **no dejes solo variables de
+   ejemplo** (`EXAMPLE_NAME`, etc.). Sin `DATABASE_URL` el build **siempre falla**,
+   porque durante el build corre `prisma migrate deploy` y Prisma tiene que
+   conectar al Postgres de Railway.
+4. Configurá las variables de entorno (tab **Environment Variables**):
 
    | Nombre                  | Valor                                                   |
    | ----------------------- | ------------------------------------------------------- |
@@ -306,11 +310,10 @@ gestionar los gyms desde `/platform` una vez desplegado.
    | `NEXT_PUBLIC_APP_NAME`  | `NaturalPack` (o el nombre que quieras mostrar)         |
    | `PUBLIC_BASE_URL`       | la URL pública de Vercel, ej. `https://naturalpack.vercel.app` |
 
-4. Dale **Deploy**. El script `build` ya corre
-   `prisma generate && prisma migrate deploy && next build`, así que si
-   cambia el schema y pusheás, las migraciones se aplican solas en el próximo
-   deploy.
-5. Una vez arriba, entrá a `/login` con el superadmin y desde `/platform`
+5. Dale **Deploy**. El script `npm run build` ejecuta `scripts/build-production.mjs`:
+   `prisma generate` → `prisma migrate deploy` → `next build`. Si cambia el
+   schema y pusheás, las migraciones se aplican en el próximo deploy.
+6. Una vez arriba, entrá a `/login` con el superadmin y desde `/platform`
    creás el primer gym (o que el dueño se registre en `/register?as=owner`).
 
 ### Troubleshooting
