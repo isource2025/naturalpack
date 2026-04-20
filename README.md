@@ -358,6 +358,11 @@ superadmin anotadas.
 - Si el log muestra `Error: Command failed: npx prisma migrate deploy` con
   `stdout: null` → era el antiguo `execSync`; actualizá el deploy al último
   `main`: el script ahora usa `spawnSync` y imprime la salida real de Prisma.
+- **`P3015` Could not find the migration file** en Vercel → suele ser
+  `migration.sql` guardado en **UTF-16** (típico al editar en Windows). El repo
+  usa UTF-8 + carpeta con timestamp (`20260220120000_init`). Si tu DB ya tenía
+  registrada la migración `0_init` en `_prisma_migrations` y fallaba, podés
+  borrar esa fila en Railway (SQL) o recrear la base vacía y redeployar.
 - **`prisma` no encontrado en el build** → `prisma` está en `dependencies` para
   que siempre esté instalado en el entorno de build.
 - **Schema cambió pero Vercel no corre migrations** → verificá que `build` en

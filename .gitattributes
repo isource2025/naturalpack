@@ -1,0 +1,2 @@
+# SQL como texto UTF-8 con fin de línea LF (build Linux / Vercel).
+*.sql text eol=lf
