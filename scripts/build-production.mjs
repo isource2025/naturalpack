@@ -56,7 +56,11 @@ function runMigrateDeploy() {
   });
   if (r.stdout) process.stdout.write(r.stdout);
   if (r.stderr) process.stderr.write(r.stderr);
-  if (r.status !== 0 && r.status !== null) {
+  if (r.signal) {
+    console.error(`migrate deploy terminó por señal: ${r.signal}`);
+    process.exit(1);
+  }
+  if (r.status !== 0) {
     console.error(`
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ❌ prisma migrate deploy falló (código ${r.status}).
@@ -71,7 +75,7 @@ buscá una URL "directa" sin pooler para migraciones o consultá la doc de
 Railway para tu tipo de Postgres.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `);
-    process.exit(r.status);
+    process.exit(r.status ?? 1);
   }
 }
 
