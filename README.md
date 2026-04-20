@@ -349,7 +349,13 @@ superadmin anotadas.
 - **`Error: P1001 Can't reach database server`** o timeout en el build de Vercel
   → casi siempre es **URL interna** (`*.railway.internal`) en lugar de la
   **pública**. Usá `DATABASE_PUBLIC_URL` como valor de `DATABASE_URL` en Vercel.
-  Si sigue fallando, probá agregar `?sslmode=require` al final de la URL.
+  El script de build agrega `?sslmode=require` automáticamente para hosts
+  `*.rlwy.net` si faltaba (TLS frente al proxy de Railway).
+- **`migrate deploy` falla después de "1 migration found"** → suele ser **TLS**
+  (arriba) o **Node muy nuevo** en Vercel: el repo fija `engines.node` a **20.x**;
+  en Vercel → Settings → General asegurate de no forzar Node 24 si da problemas.
+- **`prisma` no encontrado en el build** → `prisma` está en `dependencies` para
+  que siempre esté instalado en el entorno de build.
 - **Schema cambió pero Vercel no corre migrations** → verificá que `build` en
   `package.json` incluya `prisma migrate deploy`. Redeploya desde Vercel.
 - **Cambiaste el schema localmente y no tenés migration** → correr

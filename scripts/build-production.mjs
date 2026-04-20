@@ -1,8 +1,7 @@
 /**
  * Build usado en Vercel / Railway: generate → migrate deploy → next build.
- * Si falta DATABASE_URL, falla con un mensaje explícito (evita logs opacos).
  */
-import { execSync } from "node:child_process";
+import { execSync, spawnSync } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -32,52 +31,78 @@ function run(cmd) {
   execSync(cmd, { stdio: "inherit", shell: true });
 }
 
+/**
+ * El proxy público de Railway (*.rlwy.net) suele exigir TLS explícito desde
+ * clientes externos (Vercel). Sin ?sslmode=require, migrate deploy a veces
+ * falla después de listar migraciones.
+ */
+function normalizeDatabaseUrl(url) {
+  const u = url.trim();
+  if (!u.startsWith("postgresql://") && !u.startsWith("postgres://")) return u;
+  const needsSsl =
+    /\.rlwy\.net/i.test(u) ||
+    /railway\.app/i.test(u) ||
+    /neon\.tech/i.test(u);
+  if (!needsSsl) return u;
+  if (/[?&]sslmode=/i.test(u)) return u;
+  return u.includes("?") ? `${u}&sslmode=require` : `${u}?sslmode=require`;
+}
+
+function runMigrateDeploy() {
+  const r = spawnSync("npx", ["prisma", "migrate", "deploy"], {
+    shell: true,
+    encoding: "utf8",
+    env: process.env,
+  });
+  if (r.stdout) process.stdout.write(r.stdout);
+  if (r.stderr) process.stderr.write(r.stderr);
+  if (r.status !== 0 && r.status !== null) {
+    console.error(`
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+❌ prisma migrate deploy falló (código ${r.status}).
+
+Si usás Railway + Vercel:
+  • La URL tiene que ser DATABASE_PUBLIC_URL (no *.railway.internal).
+  • El script ya agrega ?sslmode=require para *.rlwy.net si faltaba.
+  • En Vercel → Settings → General: Node.js 20.x (package.json tiene "engines").
+
+Si el error menciona PgBouncer / prepared statements / pooler, en Railway
+buscá una URL "directa" sin pooler para migraciones o consultá la doc de
+Railway para tu tipo de Postgres.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`);
+    process.exit(r.status);
+  }
+}
+
 loadDotEnv();
 run("npx prisma generate");
 
-const db = process.env.DATABASE_URL?.trim() ?? "";
+let db = process.env.DATABASE_URL?.trim() ?? "";
 if (!db.startsWith("postgresql://") && !db.startsWith("postgres://")) {
   console.error(`
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ❌ DATABASE_URL no está definida o no es una URL de PostgreSQL.
 
-Durante el build se ejecuta \`prisma migrate deploy\`, que necesita
-conectar a la base (p. ej. la de Railway).
-
-En Vercel: Project → Settings → Environment Variables
-  • DATABASE_URL = (copiá la variable del servicio Postgres en Railway)
-  • Aplicá a Production, Preview y Development según corresponda.
-
-Borrá variables de ejemplo como EXAMPLE_NAME si no las usa la app.
-
-Documentación: README.md → "Deploy a producción (Railway + Vercel)"
+En Vercel: pegá el valor de DATABASE_PUBLIC_URL de Railway en DATABASE_URL.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `);
   process.exit(1);
 }
 
-// Railway expone dos URLs: la interna (.railway.internal) solo sirve entre
-// servicios dentro del mismo proyecto Railway. Vercel corre fuera de esa red.
 if (db.includes(".railway.internal") || db.includes("railway.internal")) {
   console.error(`
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-❌ DATABASE_URL apunta a la red privada de Railway (*.railway.internal).
+❌ DATABASE_URL apunta a *.railway.internal — Vercel no puede usarla.
 
-Esa URL solo funciona si la app también corre en Railway. Vercel no puede
-alcanzarla → \`prisma migrate deploy\` falla en el build.
-
-Solución en Railway (servicio Postgres → Variables):
-  • Usá el valor de DATABASE_PUBLIC_URL (host tipo *.proxy.rlwy.net y puerto
-    público), O la "Public Network" / connection string externa.
-
-En Vercel la variable debe seguir llamándose DATABASE_URL (así lo espera
-Prisma), pero el VALOR tiene que ser la URL pública, no la interna.
-
-Opcional: agregá ?sslmode=require al final si Railway lo documenta para tu plan.
+Usá DATABASE_PUBLIC_URL como valor de DATABASE_URL en Vercel.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `);
   process.exit(1);
 }
 
-run("npx prisma migrate deploy");
+db = normalizeDatabaseUrl(db);
+process.env.DATABASE_URL = db;
+
+runMigrateDeploy();
 run("npx next build");
