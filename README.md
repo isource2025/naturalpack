@@ -258,63 +258,82 @@ Ver `.env.example`. Para desarrollo local, `.env` ya trae valores por defecto.
 
 ---
 
-## Deploy a producción (Railway + Vercel)
+## Deploy a producción (orden fijo: Railway DB → Vercel app)
 
-La arquitectura recomendada es: **DB en Railway** (Postgres) + **app en Vercel**
-(Next.js). Railway también puede correr la app si preferís un solo proveedor,
-pero Vercel aprovecha mejor el edge/SSR.
+Arquitectura: **contenedor Postgres en Railway** + **Next.js en Vercel**.  
+No hace falta deployar el repo en Railway para tener la base: el Postgres es un
+servicio aparte; Vercel se conecta por internet usando `DATABASE_URL`.
 
-### 1) Base de datos en Railway
+### Fase 1 — Solo la base de datos en Railway (hacé esto primero)
 
-1. Entrá a <https://railway.app> → **New Project** → **Provision PostgreSQL**.
-2. Abrí el servicio Postgres → tab **Variables** y copiá `DATABASE_URL`
-   (la que empieza con `postgresql://...`). Esa es la que vas a usar en
-   Vercel y localmente si querés apuntar a la DB de prod.
-3. (Opcional pero recomendado) Creá una segunda base en Railway para staging.
+1. Entrá a <https://railway.app> e iniciá sesión.
+2. **New project** → **Provision PostgreSQL** (o **Empty project** → **+ New** →
+   **Database** → **PostgreSQL**).
+3. Esperá a que el servicio quede **Active / Healthy** (icono verde).
+4. Abrí el **servicio Postgres** (no confundir con un futuro servicio web).
+5. Tab **Variables** (o **Connect**) → copiá **`DATABASE_URL`**. Debe empezar con
+   `postgresql://` o `postgres://`. Guardala en un gestor de notas: la vas a
+   pegar en Vercel en la Fase 3.
+6. **Networking (importante para Vercel):** en el Postgres, asegurate de que
+   exista **Public networking** / URL pública si tu plan lo requiere. Sin
+   acceso de red externa, Vercel no podrá conectar durante el build
+   (`prisma migrate deploy`).
 
-> Plan gratuito de Railway da ~$5 de crédito/mes, suficiente para empezar.
-> Cuando lo consumas, tenés que pasar al plan Hobby (USD 5/mes).
+> Plan trial de Railway incluye crédito mensual; cuando se agote, pasá a Hobby.
 
-### 2) Aplicar schema y crear superadmin
+**Checklist Fase 1:** tenés una `DATABASE_URL` válida y el Postgres acepta
+conexiones desde fuera (probalo en la Fase 2).
 
-Desde tu máquina, apuntando la DB de Railway:
+### Fase 2 — Crear tablas y superadmin (desde tu PC, contra Railway)
+
+Antes de Vercel, conviene verificar que la DB responde y dejar el schema aplicado.
 
 ```bash
-# En .env local (temporal) poné la DATABASE_URL de Railway
-npx prisma migrate deploy          # crea todas las tablas
+# En la raíz del repo, en tu .env (solo en tu máquina, no se sube a git):
+DATABASE_URL="postgresql://...copiá exacto desde Railway..."
+
+npx prisma migrate deploy
+
 npm run create-superadmin -- \
   --email super@tu-dominio.com \
   --password "ContraseñaSegura123!"
 ```
 
-Eso crea el gym técnico `platform` y el usuario `superadmin` que usarás para
-gestionar los gyms desde `/platform` una vez desplegado.
+- `migrate deploy` crea todas las tablas en Railway.
+- `create-superadmin` crea el gym técnico `platform` y el usuario con rol
+  `superadmin` para `/platform`.
 
-### 3) App en Vercel
+Si `migrate deploy` falla con **P1001** / timeout, revisá la URL, SSL
+(`?sslmode=require` si Railway lo indica) y que el Postgres tenga red pública.
+
+**Checklist Fase 2:** `migrate deploy` terminó OK y tenés credenciales del
+superadmin anotadas.
+
+### Fase 3 — App en Vercel (recién cuando la Fase 1 está lista)
 
 1. Andá a <https://vercel.com> → **Add New** → **Project** → importá
    `github.com/isource2025/naturalpack`.
-2. Framework: **Next.js** (lo detecta solo).
-3. **Importante:** en la pantalla de configuración, **no dejes solo variables de
-   ejemplo** (`EXAMPLE_NAME`, etc.). Sin `DATABASE_URL` el build **siempre falla**,
-   porque durante el build corre `prisma migrate deploy` y Prisma tiene que
-   conectar al Postgres de Railway.
-4. Configurá las variables de entorno (tab **Environment Variables**):
+2. Framework: **Next.js**.
+3. **Environment variables** — misma `DATABASE_URL` que en Railway, más el resto.
+   No uses placeholders tipo `EXAMPLE_NAME`. Sin `DATABASE_URL` el build falla.
 
    | Nombre                  | Valor                                                   |
    | ----------------------- | ------------------------------------------------------- |
-   | `DATABASE_URL`          | la de Railway (el connection string completo)           |
+   | `DATABASE_URL`          | Igual que en Railway (cadena completa)                  |
    | `JWT_SECRET`            | `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` |
    | `JWT_EXPIRES_IN`        | `7d`                                                    |
-   | `ACCESS_READER_TOKEN`   | un token random para el hardware reader                 |
-   | `NEXT_PUBLIC_APP_NAME`  | `NaturalPack` (o el nombre que quieras mostrar)         |
-   | `PUBLIC_BASE_URL`       | la URL pública de Vercel, ej. `https://naturalpack.vercel.app` |
+   | `ACCESS_READER_TOKEN`   | Token random para el lector físico                      |
+   | `NEXT_PUBLIC_APP_NAME`  | `NaturalPack` (o el nombre que muestre la UI)           |
+   | `PUBLIC_BASE_URL`       | Después del primer deploy: `https://tu-proyecto.vercel.app` |
 
-5. Dale **Deploy**. El script `npm run build` ejecuta `scripts/build-production.mjs`:
-   `prisma generate` → `prisma migrate deploy` → `next build`. Si cambia el
-   schema y pusheás, las migraciones se aplican en el próximo deploy.
-6. Una vez arriba, entrá a `/login` con el superadmin y desde `/platform`
-   creás el primer gym (o que el dueño se registre en `/register?as=owner`).
+   Marcá **Production** (y **Preview** si querés previews con DB compartida o
+   una segunda DB en Railway para previews).
+
+4. **Deploy**. El build corre `scripts/build-production.mjs`: generate →
+   `migrate deploy` (idempotente si ya corriste la Fase 2) → `next build`.
+5. Actualizá `PUBLIC_BASE_URL` con la URL real y hacé **Redeploy** para que los
+   QR del kiosk apunten al dominio correcto.
+6. Entrá a `/login` con el superadmin y usá `/platform` para gestionar gyms.
 
 ### Troubleshooting
 
