@@ -110,14 +110,18 @@ export default function ClientHome({
 
       <div className={styles.dashboardStack}>
         <div className={`${styles.actionCard} ${styles.qrCtaCard}`}>
-          <div className={styles.qrCtaIcon} aria-hidden>
-            <QrCode size={22} />
+          <div className={styles.qrCtaTop}>
+            <div className={styles.qrCtaIcon} aria-hidden>
+              <QrCode size={22} />
+            </div>
+            <div className={styles.qrCtaText}>
+              <h2 className={styles.qrCtaTitle}>Ingreso con QR</h2>
+              <p className={styles.hint}>
+                En recepción está el totem con el código. Abrí el escáner y tu
+                entrada queda registrada al instante.
+              </p>
+            </div>
           </div>
-          <h2 className={styles.qrCtaTitle}>Ingreso con QR</h2>
-          <p className={styles.hint}>
-            En recepción está el totem con el código. Abrí el escáner y tu
-            entrada queda registrada al instante.
-          </p>
           <Link
             href="/scan"
             className={`${btnStyles.btn} ${btnStyles.primary} ${btnStyles["size-xl"]} ${btnStyles.full}`}
