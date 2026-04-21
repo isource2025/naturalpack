@@ -1,24 +1,21 @@
 import {
-  BellRing,
   QrCode,
   CalendarDays,
-  Flame,
   Info,
   MapPin,
   Smartphone,
   Sparkles,
   DoorOpen,
+  Camera,
 } from "lucide-react";
+import Link from "next/link";
 import Badge from "@/components/ui/Badge";
 import HeroBanner from "@/components/ui/HeroBanner";
-import {
-  isMembershipCritical,
-  membershipCriticalBannerLine,
-  membershipCriticalCardNote,
-} from "@/lib/membershipUi";
-import NotifyStaffButton from "./NotifyStaffButton";
+import btnStyles from "@/components/ui/Button.module.css";
+import { isMembershipCritical, membershipCriticalCardNote } from "@/lib/membershipUi";
 import StreakBanner from "./StreakBanner";
 import ScanFab from "./ScanFab";
+import BmiCalculator from "./BmiCalculator";
 import styles from "./ClientHome.module.css";
 
 type MembershipLite = {
@@ -29,20 +26,6 @@ type MembershipLite = {
 } | null;
 
 type Status = "active" | "expired";
-
-function motivationalText(status: Status, days: number, name: string) {
-  const first = name.split(" ")[0] ?? name;
-  if (status !== "active") {
-    return "Tu membresía venció, hablá en recepción para renovarla ⚡";
-  }
-  if (isMembershipCritical(days)) {
-    return membershipCriticalBannerLine(first, days);
-  }
-  if (days > 7) {
-    return `¡Vamos ${first}! Tenés gym de sobra, hoy se entrena 💪`;
-  }
-  return `Te quedan ${days} días — ¡a romperla!`;
-}
 
 export default function ClientHome({
   name,
@@ -125,34 +108,28 @@ export default function ClientHome({
         </div>
       </HeroBanner>
 
-      <div style={{ marginTop: "1rem" }}>
-        <StreakBanner firstName={first} />
-      </div>
-
-      <h2 className={styles.sectionTitle}>Entrar al gym</h2>
-      <div className={styles.entryGrid}>
-        <div className={`${styles.actionCard} ${styles.entryCard}`}>
-          <div className={styles.entryIcon} aria-hidden>
-            <BellRing size={22} />
-          </div>
-          <h3 className={styles.actionTitle}>Avisar al personal</h3>
-          <p className={styles.hint}>
-            El personal verá tu nombre en la pantalla del gym al instante.
-          </p>
-          <NotifyStaffButton />
-        </div>
-
-        <div className={`${styles.actionCard} ${styles.entryCard}`}>
-          <div className={styles.entryIcon} aria-hidden>
+      <div className={styles.dashboardStack}>
+        <div className={`${styles.actionCard} ${styles.qrCtaCard}`}>
+          <div className={styles.qrCtaIcon} aria-hidden>
             <QrCode size={22} />
           </div>
-          <h3 className={styles.actionTitle}>Escaneá el QR del totem</h3>
+          <h2 className={styles.qrCtaTitle}>Ingreso con QR</h2>
           <p className={styles.hint}>
-            Abrí la cámara nativa de tu teléfono y apuntá al QR que se muestra
-            en la pantalla de entrada. Al abrir el enlace, tu ingreso queda
-            registrado automáticamente — igual que el botón.
+            En recepción está el totem con el código. Abrí el escáner y tu
+            entrada queda registrada al instante.
           </p>
+          <Link
+            href="/scan"
+            className={`${btnStyles.btn} ${btnStyles.primary} ${btnStyles["size-xl"]} ${btnStyles.full}`}
+          >
+            <Camera size={20} strokeWidth={2.25} aria-hidden />
+            Escanear QR de ingreso
+          </Link>
         </div>
+
+        <StreakBanner firstName={first} />
+
+        <BmiCalculator />
       </div>
 
       <h2 className={styles.sectionTitle}>Cómo funciona</h2>
@@ -172,8 +149,8 @@ export default function ClientHome({
               <Smartphone size={16} />
             </span>
             <span>
-              Tocás <strong>Avisar al personal</strong> o escaneás el QR del
-              totem con tu cámara.
+              Tocás <strong>Escanear QR de ingreso</strong> y apuntás al código
+              del totem con la cámara.
             </span>
           </li>
           <li className={styles.hiwItem}>
