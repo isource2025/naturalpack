@@ -49,7 +49,7 @@ export default async function DashboardPage() {
         }
       />
 
-      <main className="container">
+      <main className={isAdmin ? "container" : "container dashboardClient"}>
         {isAdmin ? (
           <AdminHome
             name={me.name}

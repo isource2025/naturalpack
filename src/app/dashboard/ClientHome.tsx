@@ -106,9 +106,7 @@ export default function ClientHome({
         </div>
       </HeroBanner>
 
-      <div
-        className={`${styles.dashboardStack} ${styles.dashboardStackWithFloat}`}
-      >
+      <div className={styles.dashboardStack}>
         <div className={`${styles.actionCard} ${styles.qrCtaCard}`}>
           <div className={styles.qrCtaTop}>
             <div className={styles.qrCtaIcon} aria-hidden>

@@ -173,9 +173,18 @@ a:hover {
   max-width: 1080px;
   margin: 0 auto;
   padding-top: 1.5rem;
-  padding-bottom: 3rem;
+  /* Siempre deja aire bajo el contenido (notch / home indicator del teléfono). */
+  padding-bottom: max(3rem, calc(2.25rem + env(safe-area-inset-bottom, 0px)));
   padding-left: max(1.125rem, calc(0.65rem + env(safe-area-inset-left, 0px)));
   padding-right: max(1.125rem, calc(0.65rem + env(safe-area-inset-right, 0px)));
+}
+
+/* Dashboard socio: botón flotante de escaneo — reserva extra al final del scroll. */
+main.container.dashboardClient {
+  padding-bottom: max(
+    6.75rem,
+    calc(env(safe-area-inset-bottom, 0px) + 7rem)
+  );
 }
 
 .hint {

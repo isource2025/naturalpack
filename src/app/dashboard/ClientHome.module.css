@@ -204,10 +204,6 @@
   margin-top: 1rem;
 }
 
-.dashboardStackWithFloat {
-  padding-bottom: max(5.5rem, env(safe-area-inset-bottom, 0px) + 4.5rem);
-}
-
 .qrCtaCard {
   position: relative;
   padding-top: clamp(1.1rem, 2.5vw, 1.35rem);
@@ -258,7 +254,7 @@
   position: fixed;
   left: max(0.85rem, env(safe-area-inset-left, 0px));
   right: max(0.85rem, env(safe-area-inset-right, 0px));
-  bottom: max(0.85rem, env(safe-area-inset-bottom, 0px) + 0.35rem);
+  bottom: max(0.65rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem));
   z-index: 50;
   display: flex;
   justify-content: center;
