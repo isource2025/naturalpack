@@ -11,10 +11,8 @@ import {
 import Link from "next/link";
 import Badge from "@/components/ui/Badge";
 import HeroBanner from "@/components/ui/HeroBanner";
-import btnStyles from "@/components/ui/Button.module.css";
 import { isMembershipCritical, membershipCriticalCardNote } from "@/lib/membershipUi";
 import StreakBanner from "./StreakBanner";
-import ScanFab from "./ScanFab";
 import BmiCalculator from "./BmiCalculator";
 import styles from "./ClientHome.module.css";
 
@@ -108,7 +106,9 @@ export default function ClientHome({
         </div>
       </HeroBanner>
 
-      <div className={styles.dashboardStack}>
+      <div
+        className={`${styles.dashboardStack} ${styles.dashboardStackWithFloat}`}
+      >
         <div className={`${styles.actionCard} ${styles.qrCtaCard}`}>
           <div className={styles.qrCtaTop}>
             <div className={styles.qrCtaIcon} aria-hidden>
@@ -117,17 +117,11 @@ export default function ClientHome({
             <div className={styles.qrCtaText}>
               <h2 className={styles.qrCtaTitle}>Ingreso con QR</h2>
               <p className={styles.hint}>
-                Escanea el QR y A ROMPERLA 💣
+                En recepción está el totem con el código. Abrí el escáner y tu
+                entrada queda registrada al instante.
               </p>
             </div>
           </div>
-          <Link
-            href="/scan"
-            className={`${btnStyles.btn} ${btnStyles.primary} ${btnStyles["size-xl"]} ${btnStyles.full}`}
-          >
-            <Camera size={20} strokeWidth={2.25} aria-hidden />
-            Escanear QR de ingreso
-          </Link>
         </div>
 
         <StreakBanner firstName={first} />
@@ -171,7 +165,16 @@ export default function ClientHome({
         </ol>
       </div>
 
-      <ScanFab />
+      <div className={styles.scanFloatWrap}>
+        <Link
+          href="/scan"
+          className={styles.scanFloatBtn}
+          aria-label="Escanear QR de ingreso al gym"
+        >
+          <Camera size={22} strokeWidth={2.25} aria-hidden />
+          Escanear QR de ingreso
+        </Link>
+      </div>
     </>
   );
 }
