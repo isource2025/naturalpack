@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   QrCode,
@@ -59,19 +59,24 @@ function pickPhrase(seed: string) {
   return GRANTED_PHRASES[idx];
 }
 
-const KIOSK_HEADLINES = [
+/** Frases del idle del totem; una al azar en cada F5 y tras cada ingreso. */
+const IDLE_PHRASE_TEMPLATES = [
   (name: string) => `¡En ${name} hoy se entrena con todo!`,
-  (name: string) => `¡${name} te espera — dale que hay que romperla!`,
+  (name: string) => `¡${name} te espera — a romperla!`,
   (name: string) => `Fuego en ${name}: escaneá y entrá 🔥`,
   (name: string) => `Hoy el piso tiembla en ${name} 💪`,
+  (name: string) => `¡${name} no perdona — vamos con todo!`,
+  (name: string) => `Modo bestia activado en ${name} 🚀`,
+  (name: string) => `¿Listo? ${name} te espera del otro lado 💣`,
+  (name: string) => `Entrá a ${name} y dejá todo en la pista`,
+  (name: string) => `Hoy sí o sí hay entreno en ${name}`,
+  (name: string) => `¡Dale gas en ${name}, campeón!`,
 ] as const;
 
-function pickKioskHeadline(gymName: string, seed: string) {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0;
-  const idx = Math.abs(h) % KIOSK_HEADLINES.length;
-  const fn = KIOSK_HEADLINES[idx] ?? KIOSK_HEADLINES[0];
-  return fn(gymName);
+function randomIdleHeadline(gymName: string): string {
+  const i = Math.floor(Math.random() * IDLE_PHRASE_TEMPLATES.length);
+  const pick = IDLE_PHRASE_TEMPLATES[i] ?? IDLE_PHRASE_TEMPLATES[0];
+  return pick(gymName);
 }
 
 export default function KioskView() {
@@ -79,10 +84,13 @@ export default function KioskView() {
   const [tokenState, setTokenState] = useState<TokenState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ui, setUi] = useState<UIState>({ kind: "qr" });
+  /** Un solo titular estable hasta F5 o hasta rotar tras un ingreso (evita flash "Tu gimnasio" → nombre real). */
+  const [idleHeadline, setIdleHeadline] = useState<string | null>(null);
 
   const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastStampRef = useRef<string | null>(null);
+  const sessionRef = useRef<SessionState | null>(null);
 
   // --- 1) Sesión de totem (reutiliza la del gym si sigue vigente) ---
   useEffect(() => {
@@ -107,6 +115,18 @@ export default function KioskView() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    sessionRef.current = session;
+  }, [session]);
+
+  /** Primera frase aleatoria solo cuando ya tenemos el nombre real del gym (no antes). */
+  useEffect(() => {
+    if (!session) return;
+    setIdleHeadline((prev) =>
+      prev === null ? randomIdleHeadline(session.gymName) : prev
+    );
+  }, [session]);
 
   // --- 2) Token + QR desde el backend (mismo token hasta que venza) ---
   const refreshToken = useCallback(async (sessionId: string) => {
@@ -170,7 +190,11 @@ export default function KioskView() {
     lastStampRef.current = data.timestamp;
     setUi({ kind: "result", data });
     if (resetTimer.current) clearTimeout(resetTimer.current);
-    resetTimer.current = setTimeout(() => setUi({ kind: "qr" }), RESET_MS);
+    resetTimer.current = setTimeout(() => {
+      const s = sessionRef.current;
+      if (s) setIdleHeadline(randomIdleHeadline(s.gymName));
+      setUi({ kind: "qr" });
+    }, RESET_MS);
   }
 
   return (
@@ -181,8 +205,7 @@ export default function KioskView() {
         <IdleScreen
           key="idle"
           tokenState={tokenState}
-          gymName={session?.gymName ?? "Tu gimnasio"}
-          sessionSeed={session?.sessionId ?? "kiosk"}
+          headline={idleHeadline}
           error={error}
         />
       )}
@@ -193,20 +216,13 @@ export default function KioskView() {
 /* ------------------------------ Idle ------------------------------ */
 function IdleScreen({
   tokenState,
-  gymName,
-  sessionSeed,
+  headline,
   error,
 }: {
   tokenState: TokenState | null;
-  gymName: string;
-  sessionSeed: string;
+  headline: string | null;
   error: string | null;
 }) {
-  const headline = useMemo(
-    () => pickKioskHeadline(gymName, sessionSeed),
-    [gymName, sessionSeed]
-  );
-
   return (
     <motion.div
       className={`${styles.kiosk} ${styles.idle}`}
@@ -218,7 +234,9 @@ function IdleScreen({
       <div className={`${styles.inner} ${styles.idleInner}`}>
         <div className={styles.idleGrid}>
           <div className={styles.idleLeft}>
-            <h1 className={styles.title}>{headline}</h1>
+            <h1 className={`${styles.title} ${styles.idleTitle}`}>
+              {headline ?? "\u00A0"}
+            </h1>
             <p className={styles.sub}>
               Abrí la cámara, apuntá al código y listo.
             </p>
