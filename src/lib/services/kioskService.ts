@@ -39,8 +39,22 @@ async function gcFull() {
 }
 
 export const kioskService = {
-  async createSession(gymId: string | null) {
+  /**
+   * Reutiliza la sesión de totem más reciente del gym (misma pantalla al refrescar).
+   * Si no hay ninguna vigente, crea una nueva.
+   */
+  async getOrCreateSessionForGym(gymId: string | null) {
     await gcFull();
+    if (gymId) {
+      const minCreated = new Date(Date.now() - SESSION_TTL_MS);
+      const existing = await prisma.kioskSession.findFirst({
+        where: { gymId, createdAt: { gte: minCreated } },
+        orderBy: { createdAt: "desc" },
+      });
+      if (existing) {
+        return { sessionId: existing.id, gymId: existing.gymId };
+      }
+    }
     const session = await prisma.kioskSession.create({
       data: {
         id: randomId("ks", 12),
@@ -51,16 +65,31 @@ export const kioskService = {
   },
 
   /**
-   * Emite un token nuevo para una sesión. Vive 24h; la pantalla puede rotar tokens.
+   * Devuelve un token aún vigente para la sesión si existe; si no, crea uno nuevo (24h).
+   * Así el QR no cambia en cada refresh mientras el token siga válido.
    */
   async issueToken(sessionId: string) {
-    await gcFull();
+    await gcExpiredTokens();
     const exists = await prisma.kioskSession.findUnique({
       where: { id: sessionId },
     });
     if (!exists) {
       throw new NotFoundError("La sesión de kiosk no existe o expiró");
     }
+    const now = new Date();
+    const existing = await prisma.kioskToken.findFirst({
+      where: { sessionId, expiresAt: { gt: now } },
+      orderBy: { expiresAt: "desc" },
+    });
+    if (existing) {
+      const ttlMs = Math.max(30_000, existing.expiresAt.getTime() - Date.now());
+      return {
+        token: existing.token,
+        expiresAt: existing.expiresAt.getTime(),
+        ttlMs,
+      };
+    }
+    await gcStaleSessions();
     const token = randomId("kq", 18);
     const expiresAt = new Date(Date.now() + KIOSK_TOKEN_TTL_MS);
     await prisma.kioskToken.create({

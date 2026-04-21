@@ -64,11 +64,12 @@ export default function ScannerView({
   const scannerRef = useRef<{ stop: () => void; destroy: () => void } | null>(
     null
   );
-  const submittedRef = useRef<string | null>(null);
+  /** Solo evita doble POST simultáneo; el mismo QR puede usarse muchas veces. */
+  const inFlightRef = useRef(false);
 
   const submit = useCallback(async (token: string) => {
-    if (submittedRef.current === token) return;
-    submittedRef.current = token;
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
     setUi({ kind: "submitting" });
     try {
       const res = await fetch("/api/access/check-in", {
@@ -89,6 +90,8 @@ export default function ScannerView({
         kind: "error",
         message: e instanceof Error ? e.message : "Error de red",
       });
+    } finally {
+      inFlightRef.current = false;
     }
   }, []);
 
@@ -205,7 +208,7 @@ export default function ScannerView({
   function reset() {
     scannerRef.current?.destroy();
     scannerRef.current = null;
-    submittedRef.current = null;
+    inFlightRef.current = false;
     setUi({ kind: "idle" });
     const skipCamera = Boolean(initialToken && extractToken(initialToken));
     if (!skipCamera) {

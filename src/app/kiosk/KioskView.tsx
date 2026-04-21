@@ -1,14 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import QRCode from "qrcode";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   QrCode,
   Smartphone,
   CheckCircle2,
   XCircle,
-  Flame,
   AlertTriangle,
 } from "lucide-react";
 import {
@@ -32,6 +30,7 @@ type AccessResult = {
 type SessionState = {
   sessionId: string;
   gymId: string | null;
+  gymName: string;
 };
 
 type TokenState = {
@@ -60,11 +59,24 @@ function pickPhrase(seed: string) {
   return GRANTED_PHRASES[idx];
 }
 
+const KIOSK_HEADLINES = [
+  (name: string) => `¡En ${name} hoy se entrena con todo!`,
+  (name: string) => `¡${name} te espera — dale que hay que romperla!`,
+  (name: string) => `Fuego en ${name}: escaneá y entrá 🔥`,
+  (name: string) => `Hoy el piso tiembla en ${name} 💪`,
+] as const;
+
+function pickKioskHeadline(gymName: string, seed: string) {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0;
+  const idx = Math.abs(h) % KIOSK_HEADLINES.length;
+  const fn = KIOSK_HEADLINES[idx] ?? KIOSK_HEADLINES[0];
+  return fn(gymName);
+}
+
 export default function KioskView() {
   const [session, setSession] = useState<SessionState | null>(null);
-  const [baseUrl, setBaseUrl] = useState<string | null>(null);
   const [tokenState, setTokenState] = useState<TokenState | null>(null);
-  const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ui, setUi] = useState<UIState>({ kind: "qr" });
 
@@ -72,27 +84,20 @@ export default function KioskView() {
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastStampRef = useRef<string | null>(null);
 
-  // --- 1) Crear sesión de totem + resolver baseUrl pública ---
-  // El gymId de la sesión lo decide el server a partir del JWT del admin.
+  // --- 1) Sesión de totem (reutiliza la del gym si sigue vigente) ---
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const [sesRes, urlRes] = await Promise.all([
-          fetch("/api/kiosk/session", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: "{}",
-          }).then((r) => r.json()),
-          fetch("/api/kiosk/public-url").then((r) => r.json()),
-        ]);
+        const sesRes = await fetch("/api/kiosk/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: "{}",
+        }).then((r) => r.json());
         if (!sesRes.ok)
           throw new Error(sesRes.error?.message || "No se pudo crear sesión");
-        if (!urlRes.ok)
-          throw new Error(urlRes.error?.message || "No se pudo resolver baseUrl");
         if (cancelled) return;
         setSession(sesRes.data);
-        setBaseUrl(urlRes.data.baseUrl);
       } catch (e) {
         if (!cancelled)
           setError(e instanceof Error ? e.message : "Error inicializando totem");
@@ -103,43 +108,40 @@ export default function KioskView() {
     };
   }, []);
 
-  // --- 2) Renovar token + regenerar QR en loop ---
-  const refreshToken = useCallback(
-    async (sessionId: string, base: string) => {
-      try {
-        const res = await fetch(
-          `/api/kiosk/token?sessionId=${encodeURIComponent(sessionId)}`,
-          { cache: "no-store" }
-        );
-        const json = await res.json();
-        if (!json.ok)
-          throw new Error(json.error?.message || "No se pudo emitir token");
-        const { token, expiresAt, ttlMs } = json.data as {
-          token: string;
-          expiresAt: number;
-          ttlMs: number;
-        };
-        const scanUrl = `${base}/scan?token=${encodeURIComponent(token)}`;
-        const qrDataUrl = await generateQrDataUrl(scanUrl);
-        setTokenState({ token, expiresAt, qrDataUrl, scanUrl });
+  // --- 2) Token + QR desde el backend (mismo token hasta que venza) ---
+  const refreshToken = useCallback(async (sessionId: string) => {
+    try {
+      const res = await fetch(
+        `/api/kiosk/token?sessionId=${encodeURIComponent(sessionId)}`,
+        { cache: "no-store" }
+      );
+      const json = await res.json();
+      if (!json.ok)
+        throw new Error(json.error?.message || "No se pudo emitir token");
+      const { token, expiresAt, ttlMs, scanUrl, qrDataUrl } = json.data as {
+        token: string;
+        expiresAt: number;
+        ttlMs: number;
+        scanUrl: string;
+        qrDataUrl: string;
+      };
+      setTokenState({ token, expiresAt, qrDataUrl, scanUrl });
 
-        if (refreshTimer.current) clearTimeout(refreshTimer.current);
-        const delay = Math.max(1000, ttlMs - TOKEN_REFRESH_SAFETY_MS);
-        refreshTimer.current = setTimeout(() => refreshToken(sessionId, base), delay);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : "Error emitiendo token");
-      }
-    },
-    []
-  );
+      if (refreshTimer.current) clearTimeout(refreshTimer.current);
+      const delay = Math.max(1000, ttlMs - TOKEN_REFRESH_SAFETY_MS);
+      refreshTimer.current = setTimeout(() => refreshToken(sessionId), delay);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Error emitiendo token");
+    }
+  }, []);
 
   useEffect(() => {
-    if (!session || !baseUrl) return;
-    refreshToken(session.sessionId, baseUrl);
+    if (!session) return;
+    void refreshToken(session.sessionId);
     return () => {
       if (refreshTimer.current) clearTimeout(refreshTimer.current);
     };
-  }, [session, baseUrl, refreshToken]);
+  }, [session, refreshToken]);
 
   // --- 3) SSE filtrado por sessionId ---
   useEffect(() => {
@@ -148,7 +150,6 @@ export default function KioskView() {
       `/api/kiosk/stream?sessionId=${encodeURIComponent(session.sessionId)}`
     );
 
-    es.addEventListener("ready", () => setConnected(true));
     es.addEventListener("access:result", (ev) => {
       try {
         const data = JSON.parse((ev as MessageEvent).data) as AccessResult;
@@ -157,8 +158,6 @@ export default function KioskView() {
         /* ignore */
       }
     });
-    es.onerror = () => setConnected(false);
-
     return () => {
       es.close();
       if (resetTimer.current) clearTimeout(resetTimer.current);
@@ -174,11 +173,6 @@ export default function KioskView() {
     resetTimer.current = setTimeout(() => setUi({ kind: "qr" }), RESET_MS);
   }
 
-  const scanUrlShort = useMemo(
-    () => tokenState?.scanUrl.replace(/\/scan\?.*$/, "/scan") ?? "",
-    [tokenState]
-  );
-
   return (
     <AnimatePresence mode="wait" initial={false}>
       {ui.kind === "result" ? (
@@ -187,8 +181,8 @@ export default function KioskView() {
         <IdleScreen
           key="idle"
           tokenState={tokenState}
-          scanUrlShort={scanUrlShort}
-          connected={connected}
+          gymName={session?.gymName ?? "Tu gimnasio"}
+          sessionSeed={session?.sessionId ?? "kiosk"}
           error={error}
         />
       )}
@@ -199,15 +193,20 @@ export default function KioskView() {
 /* ------------------------------ Idle ------------------------------ */
 function IdleScreen({
   tokenState,
-  scanUrlShort,
-  connected,
+  gymName,
+  sessionSeed,
   error,
 }: {
   tokenState: TokenState | null;
-  scanUrlShort: string;
-  connected: boolean;
+  gymName: string;
+  sessionSeed: string;
   error: string | null;
 }) {
+  const headline = useMemo(
+    () => pickKioskHeadline(gymName, sessionSeed),
+    [gymName, sessionSeed]
+  );
+
   return (
     <motion.div
       className={`${styles.kiosk} ${styles.idle}`}
@@ -216,50 +215,46 @@ function IdleScreen({
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <div className={styles.inner}>
-        <span className={styles.eyebrow}>
-          <Flame size={14} /> NaturalPack · Hoy se entrena
-        </span>
-        <h1 className={styles.title}>Escaneá para entrar</h1>
-        <p className={styles.sub}>
-          Abrí la cámara de tu teléfono y apuntá al QR.
-        </p>
+      <div className={`${styles.inner} ${styles.idleInner}`}>
+        <div className={styles.idleGrid}>
+          <div className={styles.idleLeft}>
+            <h1 className={styles.title}>{headline}</h1>
+            <p className={styles.sub}>
+              Abrí la cámara, apuntá al código y listo.
+            </p>
 
-        <div className={styles.qrBox}>
-          {tokenState ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={tokenState.qrDataUrl} alt="QR de acceso" />
-          ) : (
-            <div className={styles.qrLoading}>Generando QR…</div>
-          )}
+            <div className={styles.steps}>
+              <div className={styles.step}>
+                <span className={styles.stepNum}>1</span>
+                <Smartphone className={styles.stepIcon} size={28} strokeWidth={2} />
+                <span className={styles.stepText}>Abrí tu cámara</span>
+              </div>
+              <div className={styles.step}>
+                <span className={styles.stepNum}>2</span>
+                <QrCode className={styles.stepIcon} size={28} strokeWidth={2} />
+                <span className={styles.stepText}>Apuntá al QR</span>
+              </div>
+              <div className={styles.step}>
+                <span className={styles.stepNum}>3</span>
+                <CheckCircle2 className={styles.stepIcon} size={28} strokeWidth={2} />
+                <span className={styles.stepText}>¡A entrenar!</span>
+              </div>
+            </div>
+
+            {error && <p className={styles.idleError}>{error}</p>}
+          </div>
+
+          <div className={styles.idleRight}>
+            <div className={styles.qrBox}>
+              {tokenState ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={tokenState.qrDataUrl} alt="QR de acceso" />
+              ) : (
+                <div className={styles.qrLoading}>Generando QR…</div>
+              )}
+            </div>
+          </div>
         </div>
-
-        <div className={styles.steps}>
-          <span className={styles.step}>
-            <span className={styles.stepNum}>1</span>
-            <Smartphone size={14} /> Abrí tu cámara
-          </span>
-          <span className={styles.step}>
-            <span className={styles.stepNum}>2</span>
-            <QrCode size={14} /> Apuntá al QR
-          </span>
-          <span className={styles.step}>
-            <span className={styles.stepNum}>3</span>
-            <CheckCircle2 size={14} /> Listo, a entrenar
-          </span>
-        </div>
-
-        {scanUrlShort && <p className={styles.url}>{scanUrlShort}</p>}
-
-        <p className={styles.status}>
-          <span
-            className={`${styles.statusDot} ${
-              connected ? styles.statusDotOk : ""
-            }`}
-          />
-          {connected ? "En línea · tiempo real" : "Conectando…"}
-          {error && <span className={styles.err}> · {error}</span>}
-        </p>
       </div>
     </motion.div>
   );
@@ -388,11 +383,3 @@ function ResultScreen({ data }: { data: AccessResult }) {
   );
 }
 
-async function generateQrDataUrl(text: string): Promise<string> {
-  return QRCode.toDataURL(text, {
-    errorCorrectionLevel: "M",
-    margin: 2,
-    width: 480,
-    color: { dark: "#07090d", light: "#ffffff" },
-  });
-}

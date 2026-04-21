@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { handle, ok } from "@/lib/http";
 import { requireAdmin } from "@/lib/auth";
+import { gymRepository } from "@/lib/repositories/gymRepository";
 import { kioskService } from "@/lib/services/kioskService";
 
 export const runtime = "nodejs";
@@ -17,6 +18,7 @@ export const runtime = "nodejs";
  */
 export const POST = handle(async (_req: NextRequest) => {
   const session = requireAdmin();
-  const kiosk = await kioskService.createSession(session.gymId);
-  return ok(kiosk, { status: 201 });
+  const kiosk = await kioskService.getOrCreateSessionForGym(session.gymId);
+  const gym = await gymRepository.findById(session.gymId);
+  return ok({ ...kiosk, gymName: gym?.name ?? "Tu gimnasio" });
 });
