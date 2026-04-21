@@ -1,4 +1,6 @@
 import { EventEmitter } from "node:events";
+import type { Prisma } from "@prisma/client";
+import { prisma } from "../db";
 
 /**
  * Bus de eventos in-memory para el MVP.
@@ -40,10 +42,22 @@ export const EVENTS = {
 const lastByGym = new Map<string, AccessResultPayload>();
 let lastAny: AccessResultPayload | null = null;
 
-export function publishAccessResult(payload: AccessResultPayload) {
+export async function publishAccessResult(payload: AccessResultPayload) {
   if (payload.gymId) lastByGym.set(payload.gymId, payload);
   lastAny = payload;
   bus.emit(EVENTS.ACCESS_RESULT, payload);
+  if (payload.kioskSessionId) {
+    await prisma.kioskLiveResult.upsert({
+      where: { sessionId: payload.kioskSessionId },
+      create: {
+        sessionId: payload.kioskSessionId,
+        payload: payload as unknown as Prisma.InputJsonValue,
+      },
+      update: {
+        payload: payload as unknown as Prisma.InputJsonValue,
+      },
+    });
+  }
 }
 
 export function getLastAccessResult(gymId?: string | null): AccessResultPayload | null {

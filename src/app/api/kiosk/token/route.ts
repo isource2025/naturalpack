@@ -13,6 +13,6 @@ export const dynamic = "force-dynamic";
 export const GET = handle(async (req: NextRequest) => {
   const sessionId = req.nextUrl.searchParams.get("sessionId");
   if (!sessionId) return fail(400, "BAD_REQUEST", "Falta sessionId");
-  const out = kioskService.issueToken(sessionId);
+  const out = await kioskService.issueToken(sessionId);
   return ok(out);
 });

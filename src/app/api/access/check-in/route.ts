@@ -12,7 +12,7 @@ export const runtime = "nodejs";
  * Flujo principal del MVP: el socio autenticado escanea el QR de la pantalla
  * del gym desde su app, y esta ruta:
  *  - Valida la cookie del socio (requireSession).
- *  - Consume el token del kiosk (single-use) en kioskService.
+ *  - Valida el token del kiosk (vigente hasta su expiración) en kioskService.
  *  - Verifica estado de membresía.
  *  - Registra AccessLog.
  *  - Emite "access:result" por el bus para que la pantalla kiosk se actualice.

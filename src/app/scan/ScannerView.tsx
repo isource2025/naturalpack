@@ -73,6 +73,7 @@ export default function ScannerView({
     try {
       const res = await fetch("/api/access/check-in", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token }),
       });
@@ -187,6 +188,14 @@ export default function ScannerView({
     }
   }, [submit]);
 
+  /** Cámara en el navegador apenas entrás a /scan (sin ?token=). */
+  useEffect(() => {
+    const skipCamera = Boolean(initialToken && extractToken(initialToken));
+    if (skipCamera) return;
+    const id = window.setTimeout(() => void startScanner(), 150);
+    return () => clearTimeout(id);
+  }, [initialToken, startScanner]);
+
   useEffect(() => {
     return () => {
       scannerRef.current?.destroy();
@@ -198,6 +207,10 @@ export default function ScannerView({
     scannerRef.current = null;
     submittedRef.current = null;
     setUi({ kind: "idle" });
+    const skipCamera = Boolean(initialToken && extractToken(initialToken));
+    if (!skipCamera) {
+      window.setTimeout(() => void startScanner(), 150);
+    }
   }
 
   return (

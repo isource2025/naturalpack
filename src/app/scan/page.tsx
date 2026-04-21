@@ -8,5 +8,6 @@ export default function ScanPage({
 }: {
   searchParams: { token?: string };
 }) {
-  return <ScannerView initialToken={searchParams.token ?? null} />;
+  const token = searchParams.token ?? null;
+  return <ScannerView key={token ?? "camera"} initialToken={token} />;
 }

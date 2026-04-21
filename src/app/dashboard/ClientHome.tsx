@@ -79,7 +79,6 @@ export default function ClientHome({
 
           <div className={styles.memHeroDivider} aria-hidden />
 
-          <p className={styles.memHeroKicker}>Tu membresía</p>
           <div className={styles.memHeroBlock}>
             <div className={styles.memHeroRow}>
               <span className={styles.memHeroStatLabel}>
@@ -109,7 +108,7 @@ export default function ClientHome({
               {active
                 ? critical
                   ? membershipCriticalCardNote(days)
-                  : "¡Estás activo! Aprovechá cada sesión 💪"
+                  : "¡Estás activo! Aprovechá cada dia 💪"
                 : "Tu plan está vencido. Renová para volver a entrenar."}
             </p>
             {membership && (

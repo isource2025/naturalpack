@@ -17,6 +17,6 @@ export const runtime = "nodejs";
  */
 export const POST = handle(async (_req: NextRequest) => {
   const session = requireAdmin();
-  const kiosk = kioskService.createSession(session.gymId);
+  const kiosk = await kioskService.createSession(session.gymId);
   return ok(kiosk, { status: 201 });
 });

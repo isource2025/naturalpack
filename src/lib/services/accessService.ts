@@ -15,7 +15,7 @@ export const accessService = {
    */
   async checkIn(params: { userId: string; kioskToken: string }): Promise<AccessResultPayload> {
     // validateToken lanza ValidationError si el token es inválido/expirado
-    const { sessionId, gymId } = kioskService.validateToken(params.kioskToken);
+    const { sessionId, gymId } = await kioskService.validateToken(params.kioskToken);
 
     const user = await userRepository.findByIdWithRelations(params.userId);
     if (!user) throw new NotFoundError("Usuario no encontrado");
@@ -42,7 +42,7 @@ export const accessService = {
       reason: active ? null : "membership_expired",
     });
 
-    publishAccessResult(payload);
+    await publishAccessResult(payload);
     return payload;
   },
 
@@ -62,7 +62,7 @@ export const accessService = {
     const dr = membership ? daysRemaining(membership.endDate) : 0;
     const active = !!membership && membership.status === "active" && dr > 0;
 
-    const kiosk = kioskService.findLatestSessionByGym(user.gymId ?? null);
+    const kiosk = await kioskService.findLatestSessionByGym(user.gymId ?? null);
 
     const payload: AccessResultPayload = {
       status: active ? "granted" : "denied",
@@ -81,7 +81,7 @@ export const accessService = {
       reason: active ? null : "membership_expired",
     });
 
-    publishAccessResult(payload);
+    await publishAccessResult(payload);
     return payload;
   },
 
@@ -108,7 +108,7 @@ export const accessService = {
         status: "denied",
         reason: "qr_invalid",
       });
-      publishAccessResult(payload);
+      await publishAccessResult(payload);
       return payload;
     }
 
@@ -131,7 +131,7 @@ export const accessService = {
       status: payload.status,
       reason: active ? null : "membership_expired",
     });
-    publishAccessResult(payload);
+    await publishAccessResult(payload);
     return payload;
   },
 };

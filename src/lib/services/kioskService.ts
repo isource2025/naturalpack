@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { prisma } from "../db";
 import { NotFoundError, ValidationError } from "../errors";
 
 /**
@@ -6,129 +7,114 @@ import { NotFoundError, ValidationError } from "../errors";
  *
  * - Un "kiosk session" representa una pantalla montada en el gym.
  * - Esa sesión emite tokens de corta vida que se embeben en el QR mostrado.
- * - Cada token es single-use y se invalida al consumirse (check-in) o al expirar.
+ * - Cada token es válido hasta su expiración (mismo QR para varios socios en el día).
  *
- * Storage in-memory (MVP). Para escalar a múltiples instancias:
- * mover a Redis con el mismo contrato público.
+ * Persistido en PostgreSQL para serverless (Vercel): todas las instancias comparten estado.
  */
 
-type KioskSession = {
-  id: string;
-  gymId: string | null;
-  createdAt: number;
-};
-
-type KioskTokenRecord = {
-  token: string;
-  sessionId: string;
-  expiresAt: number;
-};
-
-type KioskStore = {
-  sessions: Map<string, KioskSession>;
-  tokens: Map<string, KioskTokenRecord>;
-};
-
-const GLOBAL_KEY = "__np_kiosk_store__" as const;
-type G = typeof globalThis & { [GLOBAL_KEY]?: KioskStore };
-const g = globalThis as G;
-
-const store: KioskStore =
-  g[GLOBAL_KEY] ??
-  ({
-    sessions: new Map<string, KioskSession>(),
-    tokens: new Map<string, KioskTokenRecord>(),
-  } satisfies KioskStore);
-if (!g[GLOBAL_KEY]) g[GLOBAL_KEY] = store;
-
-const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 días (las pantallas quedan montadas)
-export const KIOSK_TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24h: el QR se renueva a diario
-
-function gc(now = Date.now()) {
-  for (const [k, t] of store.tokens) if (t.expiresAt <= now) store.tokens.delete(k);
-  for (const [k, s] of store.sessions) {
-    if (now - s.createdAt > SESSION_TTL_MS) store.sessions.delete(k);
-  }
-}
+const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 días
+export const KIOSK_TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24h
 
 function randomId(prefix: string, bytes: number): string {
   return `${prefix}_${crypto.randomBytes(bytes).toString("base64url")}`;
 }
 
+async function gcExpiredTokens(now = new Date()) {
+  await prisma.kioskToken.deleteMany({
+    where: { expiresAt: { lte: now } },
+  });
+}
+
+async function gcStaleSessions(now = Date.now()) {
+  const cutoff = new Date(now - SESSION_TTL_MS);
+  await prisma.kioskSession.deleteMany({
+    where: { createdAt: { lt: cutoff } },
+  });
+}
+
+async function gcFull() {
+  const now = new Date();
+  await gcExpiredTokens(now);
+  await gcStaleSessions(now.getTime());
+}
+
 export const kioskService = {
-  createSession(gymId: string | null) {
-    gc();
-    const session: KioskSession = {
-      id: randomId("ks", 12),
-      gymId,
-      createdAt: Date.now(),
-    };
-    store.sessions.set(session.id, session);
+  async createSession(gymId: string | null) {
+    await gcFull();
+    const session = await prisma.kioskSession.create({
+      data: {
+        id: randomId("ks", 12),
+        gymId: gymId ?? undefined,
+      },
+    });
     return { sessionId: session.id, gymId: session.gymId };
   },
 
-  sessionExists(sessionId: string) {
-    gc();
-    return store.sessions.has(sessionId);
-  },
-
   /**
-   * Emite un token nuevo para una sesión. Vive 24h y puede usarse múltiples veces
-   * (distintos socios lo escanean a lo largo del día). Los anteriores siguen
-   * vigentes hasta su propio TTL, pero la pantalla siempre muestra el último.
+   * Emite un token nuevo para una sesión. Vive 24h; la pantalla puede rotar tokens.
    */
-  issueToken(sessionId: string) {
-    gc();
-    if (!store.sessions.has(sessionId)) {
+  async issueToken(sessionId: string) {
+    await gcFull();
+    const exists = await prisma.kioskSession.findUnique({
+      where: { id: sessionId },
+    });
+    if (!exists) {
       throw new NotFoundError("La sesión de kiosk no existe o expiró");
     }
     const token = randomId("kq", 18);
-    const expiresAt = Date.now() + KIOSK_TOKEN_TTL_MS;
-    store.tokens.set(token, { token, sessionId, expiresAt });
-    return { token, expiresAt, ttlMs: KIOSK_TOKEN_TTL_MS };
+    const expiresAt = new Date(Date.now() + KIOSK_TOKEN_TTL_MS);
+    await prisma.kioskToken.create({
+      data: { token, sessionId, expiresAt },
+    });
+    return { token, expiresAt: expiresAt.getTime(), ttlMs: KIOSK_TOKEN_TTL_MS };
   },
 
   /**
-   * Valida un token de kiosk (multi-uso, válido hasta su TTL).
-   * No lo elimina: el mismo QR puede escanearse por múltiples socios en el día.
-   * Cada check-in queda registrado individualmente en AccessLog.
+   * Valida un token de kiosk (multi-uso hasta su TTL).
    */
-  validateToken(token: string): { sessionId: string; gymId: string | null } {
-    gc();
-    const rec = store.tokens.get(token);
+  async validateToken(
+    token: string
+  ): Promise<{ sessionId: string; gymId: string | null }> {
+    await gcExpiredTokens();
+    const rec = await prisma.kioskToken.findUnique({
+      where: { token },
+      include: { session: true },
+    });
     if (!rec) throw new ValidationError("QR inválido");
-    if (rec.expiresAt < Date.now()) {
-      store.tokens.delete(token);
+    const now = new Date();
+    if (rec.expiresAt < now) {
+      await prisma.kioskToken.delete({ where: { token } }).catch(() => {
+        /* ya borrado */
+      });
       throw new ValidationError("QR expirado, espera al próximo en la pantalla");
     }
-    const session = store.sessions.get(rec.sessionId);
-    if (!session) throw new ValidationError("Sesión de kiosk finalizada");
-    return { sessionId: rec.sessionId, gymId: session.gymId };
+    if (!rec.session) throw new ValidationError("Sesión de kiosk finalizada");
+    return { sessionId: rec.sessionId, gymId: rec.session.gymId };
   },
 
   /**
-   * Devuelve la sesión de kiosk más reciente que coincida con el gymId dado.
-   * Se usa para el flujo "Avisar al personal": el socio aprieta un botón en su
-   * app y necesitamos saber a qué pantalla del gym notificar.
-   *
-   * Matching:
-   *  - Si la sesión tiene gymId y coincide → match.
-   *  - Si la sesión no tiene gymId (pantalla genérica) → también se acepta,
-   *    para no dejar al socio sin ruta en ambientes de demo.
-   *
-   * Devuelve null si no hay sesiones activas.
+   * Sesión de kiosk más reciente para el gym (o sesión genérica sin gymId).
    */
-  findLatestSessionByGym(gymId: string | null): {
+  async findLatestSessionByGym(gymId: string | null): Promise<{
     sessionId: string;
     gymId: string | null;
-  } | null {
-    gc();
-    let best: KioskSession | null = null;
-    for (const s of store.sessions.values()) {
-      const matches = gymId ? s.gymId === gymId || s.gymId === null : true;
-      if (!matches) continue;
-      if (!best || s.createdAt > best.createdAt) best = s;
-    }
-    return best ? { sessionId: best.id, gymId: best.gymId } : null;
+  } | null> {
+    await gcFull();
+    const minCreated = new Date(Date.now() - SESSION_TTL_MS);
+    const base = { createdAt: { gte: minCreated } } as const;
+    const row =
+      gymId != null
+        ? await prisma.kioskSession.findFirst({
+            where: {
+              ...base,
+              OR: [{ gymId }, { gymId: null }],
+            },
+            orderBy: { createdAt: "desc" },
+          })
+        : await prisma.kioskSession.findFirst({
+            where: base,
+            orderBy: { createdAt: "desc" },
+          });
+    return row ? { sessionId: row.id, gymId: row.gymId } : null;
   },
 };

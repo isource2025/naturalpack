@@ -46,6 +46,12 @@ function LoginForm() {
       });
       const json = await res.json();
       if (!json.ok) throw new Error(json.error?.message || "Error al iniciar sesión");
+      // Navegación completa hacia /scan?token=… evita que el cliente pierda query
+      // o quede estado viejo del escáner tras el login.
+      if (next.includes("/scan")) {
+        window.location.assign(next);
+        return;
+      }
       router.push(next);
       router.refresh();
     } catch (err) {
