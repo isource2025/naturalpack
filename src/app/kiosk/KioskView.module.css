@@ -63,6 +63,11 @@
   z-index: 1;
 }
 
+.resultInner {
+  max-width: min(96vw, 760px);
+  gap: clamp(0.45rem, 1.2vw, 0.9rem);
+}
+
 .idleInner {
   max-width: min(1120px, 100%);
 }
@@ -255,10 +260,10 @@
   font-weight: 700;
 }
 
-/* -- Result screens -- */
+/* -- Result screens (ingreso con animación) -- */
 .avatar {
-  width: clamp(140px, 20vw, 220px);
-  height: clamp(140px, 20vw, 220px);
+  width: clamp(112px, 16vw, 188px);
+  height: clamp(112px, 16vw, 188px);
   border-radius: 50%;
   overflow: hidden;
   border: 4px solid rgba(255, 255, 255, 0.22);
@@ -266,7 +271,7 @@
   box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6);
   display: grid;
   place-items: center;
-  font-size: clamp(4rem, 7vw, 6.5rem);
+  font-size: clamp(3rem, 5.5vw, 5rem);
   font-weight: 800;
   color: #fff;
 }
@@ -292,37 +297,92 @@
   animation: np-pulse-red 2s ease-out infinite;
 }
 
-.resultTitle {
-  font-size: clamp(2.2rem, 4vw + 1rem, 4.2rem);
-  font-weight: 800;
-  letter-spacing: -0.03em;
+/* Frase motivacional: secundaria respecto al bloque de días */
+.resultTagline {
+  font-size: clamp(1.05rem, 1.5vw + 0.75rem, 1.65rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
   margin: 0;
-  line-height: 1.02;
-  color: #fff;
-  text-shadow: 0 6px 30px rgba(0, 0, 0, 0.45);
+  line-height: 1.25;
+  max-width: 28ch;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
 
-.resultTitleWarn {
+.resultTaglineWarn {
   color: #fecaca;
   text-shadow:
-    0 6px 30px rgba(0, 0, 0, 0.45),
-    0 0 40px rgba(244, 63, 94, 0.55);
+    0 4px 24px rgba(0, 0, 0, 0.4),
+    0 0 28px rgba(244, 63, 94, 0.45);
 }
 
 .resultKioskWarn {
-  margin: -0.35rem 0 0;
-  font-size: clamp(1rem, 1.2vw + 0.85rem, 1.35rem);
-  font-weight: 700;
+  margin: 0;
+  font-size: clamp(0.95rem, 1vw + 0.8rem, 1.2rem);
+  font-weight: 600;
   color: #fecaca;
-  max-width: 36ch;
-  line-height: 1.35;
+  max-width: 34ch;
+  line-height: 1.4;
 }
 
 .resultName {
-  font-size: clamp(1.4rem, 1.5vw + 1rem, 2.2rem);
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.92);
+  font-size: clamp(1.65rem, 2.4vw + 0.95rem, 2.75rem);
+  font-weight: 700;
+  color: #fff;
   margin: 0;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  text-shadow: 0 6px 28px rgba(0, 0, 0, 0.45);
+}
+
+.membershipHero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+  margin: clamp(0.2rem, 0.8vw, 0.5rem) 0 clamp(0.35rem, 1vw, 0.65rem);
+}
+
+.membershipDaysNum {
+  font-size: clamp(4.75rem, 14vw + 2rem, 11.5rem);
+  font-weight: 900;
+  line-height: 0.88;
+  letter-spacing: -0.065em;
+  color: #fff;
+  text-shadow: 0 10px 48px rgba(0, 0, 0, 0.55);
+}
+
+.membershipDaysLabel {
+  font-size: clamp(0.78rem, 0.95vw + 0.55rem, 1rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 0.35rem;
+}
+
+.membershipHint {
+  font-size: clamp(0.72rem, 0.85vw + 0.5rem, 0.9rem);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.52);
+  margin-top: 0.15rem;
+}
+
+.membershipHeroLow .membershipDaysNum {
+  color: #fecaca;
+  text-shadow:
+    0 10px 48px rgba(0, 0, 0, 0.55),
+    0 0 42px rgba(244, 63, 94, 0.55);
+}
+
+.membershipHeroLow .membershipDaysLabel {
+  color: rgba(254, 202, 202, 0.88);
+}
+
+.membershipHeroLow .membershipHint {
+  color: rgba(254, 202, 202, 0.65);
 }
 
 .resultLine {
@@ -335,46 +395,14 @@
 .resultBadge {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.55rem 1rem;
+  gap: 0.45rem;
+  padding: 0.42rem 0.88rem;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.14);
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: #fff;
-  font-size: 0.95rem;
+  font-size: clamp(0.78rem, 0.75vw + 0.65rem, 0.92rem);
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
   backdrop-filter: blur(8px);
-}
-
-.bigDays {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  color: #fff;
-}
-
-.bigDaysNum {
-  font-size: clamp(3rem, 4vw + 1rem, 5rem);
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.04em;
-  text-shadow: 0 6px 30px rgba(0, 0, 0, 0.45);
-}
-
-.bigDaysUnit {
-  opacity: 0.8;
-  font-weight: 500;
-}
-
-.bigDaysLow .bigDaysNum {
-  color: #fecaca;
-  text-shadow:
-    0 6px 30px rgba(0, 0, 0, 0.45),
-    0 0 36px rgba(244, 63, 94, 0.65);
-}
-
-.bigDaysLow .bigDaysUnit {
-  color: rgba(254, 202, 202, 0.95);
-  opacity: 1;
 }

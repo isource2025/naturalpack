@@ -305,7 +305,7 @@ function ResultScreen({ data }: { data: AccessResult }) {
     >
       {granted && !low && <KioskConfetti key={data.timestamp} />}
 
-      <div className={styles.inner}>
+      <div className={`${styles.inner} ${styles.resultInner}`}>
         <motion.div
           className={styles.avatar}
           initial={{ scale: 0.6, opacity: 0 }}
@@ -320,11 +320,39 @@ function ResultScreen({ data }: { data: AccessResult }) {
           )}
         </motion.div>
 
+        <motion.p
+          className={styles.resultName}
+          initial={{ y: 14, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+        >
+          {data.user.name}
+        </motion.p>
+
+        {granted ? (
+          <motion.div
+            className={`${styles.membershipHero} ${low ? styles.membershipHeroLow : ""}`}
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.16, type: "spring", stiffness: 120, damping: 16 }}
+          >
+            <span className={styles.membershipDaysNum}>
+              {data.membership.daysRemaining}
+            </span>
+            <span className={styles.membershipDaysLabel}>
+              {data.membership.daysRemaining === 1
+                ? "día restante"
+                : "días restantes"}
+            </span>
+            <span className={styles.membershipHint}>de membresía</span>
+          </motion.div>
+        ) : null}
+
         <motion.span
           className={styles.resultBadge}
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.12 }}
+          transition={{ delay: 0.22 }}
         >
           {granted ? (
             low ? (
@@ -344,10 +372,10 @@ function ResultScreen({ data }: { data: AccessResult }) {
         </motion.span>
 
         <motion.h1
-          className={`${styles.resultTitle} ${low ? styles.resultTitleWarn : ""}`}
-          initial={{ y: 14, opacity: 0 }}
+          className={`${styles.resultTagline} ${low ? styles.resultTaglineWarn : ""}`}
+          initial={{ y: 12, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.18 }}
+          transition={{ delay: 0.26 }}
         >
           {granted ? phrase : "Membresía vencida 😔"}
         </motion.h1>
@@ -357,36 +385,13 @@ function ResultScreen({ data }: { data: AccessResult }) {
             className={styles.resultKioskWarn}
             initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.3 }}
           >
             {membershipCriticalKioskHint(data.membership.daysRemaining)}
           </motion.p>
         )}
 
-        <motion.p
-          className={styles.resultName}
-          initial={{ y: 14, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.22 }}
-        >
-          {data.user.name}
-        </motion.p>
-
-        {granted ? (
-          <motion.div
-            className={`${styles.bigDays} ${low ? styles.bigDaysLow : ""}`}
-            initial={{ y: 14, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.28 }}
-          >
-            <span className={styles.bigDaysNum}>
-              {data.membership.daysRemaining}
-            </span>
-            <span className={styles.bigDaysUnit}>
-              día{data.membership.daysRemaining === 1 ? "" : "s"} para romperla
-            </span>
-          </motion.div>
-        ) : (
+        {!granted ? (
           <motion.p
             className={styles.resultLine}
             initial={{ y: 14, opacity: 0 }}
@@ -395,7 +400,7 @@ function ResultScreen({ data }: { data: AccessResult }) {
           >
             {data.message}
           </motion.p>
-        )}
+        ) : null}
       </div>
     </motion.div>
   );
