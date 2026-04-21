@@ -117,8 +117,7 @@ export default function ClientHome({
             <div className={styles.qrCtaText}>
               <h2 className={styles.qrCtaTitle}>Ingreso con QR</h2>
               <p className={styles.hint}>
-                En recepción está el totem con el código. Abrí el escáner y tu
-                entrada queda registrada al instante.
+                Escanea el QR y A ROMPERLA 💣
               </p>
             </div>
           </div>
