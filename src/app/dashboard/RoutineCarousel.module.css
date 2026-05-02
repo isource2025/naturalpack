@@ -1,0 +1,1046 @@
+/* Tres cards visibles (anterior · principal · siguiente) en arco 3D.
+   Costados con opacidad; centro destacado. Estilos flotantes + neón (#e1ff00). */
+
+.wrap {
+  --neon: #e1ff00;
+  --neon-dim: rgba(225, 255, 0, 0.35);
+  --neon-glow: rgba(225, 255, 0, 0.45);
+  --surface: #0a0a0c;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  position: relative;
+}
+
+.carouselRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
+  touch-action: pan-x pinch-zoom;
+}
+
+.sideBtn {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--neon-dim);
+  border-radius: 50%;
+  background: rgba(225, 255, 0, 0.1);
+  color: var(--neon);
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 0 16px -6px var(--neon-glow);
+}
+
+.sideBtn:hover {
+  background: rgba(225, 255, 0, 0.2);
+}
+
+.sideBtn:active {
+  transform: scale(0.96);
+}
+
+.perspectiveHost {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  overflow: visible;
+}
+
+/* Contenedor circular / arco: perspectiva para que las 3 cards se lean en profundidad */
+.tripleStage {
+  position: relative;
+  width: 100%;
+  max-width: min(640px, 100%);
+  min-height: min(42vh, 330px);
+  margin: 0 auto;
+  perspective: 1100px;
+  perspective-origin: 50% 40%;
+  transform-style: preserve-3d;
+}
+
+.ringSlot {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  transition:
+    transform 0.5s cubic-bezier(0.33, 0.92, 0.42, 1),
+    opacity 0.4s ease;
+  will-change: transform, opacity;
+}
+
+/* Izquierda y derecha: se ven parcialmente, más oscuras */
+.slot_left {
+  transform: translate(-50%, -50%)
+    translateX(calc(-1 * min(108px, 24vw)))
+    rotateY(34deg)
+    translateZ(48px)
+    scale(0.88);
+  opacity: 0.5;
+  z-index: 1;
+}
+
+.slot_center {
+  transform: translate(-50%, -50%) translateZ(130px) scale(1);
+  opacity: 1;
+  z-index: 4;
+}
+
+.slot_right {
+  transform: translate(-50%, -50%)
+    translateX(min(108px, 24vw))
+    rotateY(-34deg)
+    translateZ(48px)
+    scale(0.88);
+  opacity: 0.5;
+  z-index: 1;
+}
+
+/* Cards flotantes (estilo acordado: oscuro + glass + borde neón) */
+.routineCard {
+  width: min(280px, 78vw);
+  max-height: min(52vh, 320px);
+  padding: 0.95rem 1rem;
+  border-radius: 16px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: linear-gradient(
+    165deg,
+    rgba(18, 18, 22, 0.92) 0%,
+    rgba(10, 10, 14, 0.94) 100%
+  );
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  box-shadow:
+    0 24px 48px -28px rgba(0, 0, 0, 0.85),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  backdrop-filter: blur(10px);
+  color: #f4f4f5;
+}
+
+.routineCardMain {
+  border-color: var(--neon-dim);
+  background: linear-gradient(
+    165deg,
+    rgba(22, 28, 18, 0.95) 0%,
+    rgba(12, 16, 10, 0.96) 100%
+  );
+  box-shadow:
+    0 28px 56px -24px rgba(0, 0, 0, 0.9),
+    0 0 40px -12px var(--neon-glow),
+    0 0 0 1px rgba(225, 255, 0, 0.12) inset;
+}
+
+.routineCardSide {
+  filter: saturate(0.72) brightness(0.88);
+  border-color: rgba(148, 163, 184, 0.18);
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.cardTitle strong {
+  color: var(--neon);
+}
+
+.cardFocus {
+  margin: 0.4rem 0 0;
+  font-size: 0.86rem;
+  color: rgba(244, 244, 245, 0.94);
+  line-height: 1.35;
+}
+
+.cardReps {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: rgba(161, 161, 170, 0.98);
+}
+
+.list {
+  margin: 0.55rem 0 0;
+  padding-left: 1.05rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: rgba(228, 228, 231, 0.94);
+}
+
+.list li {
+  margin-bottom: 0.2rem;
+}
+
+.todayLink {
+  margin: 0;
+  text-align: center;
+}
+
+.linkBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.85rem;
+  color: var(--neon);
+  text-decoration: underline;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.swipeHint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: rgba(161, 161, 170, 0.95);
+  text-align: center;
+}
+
+.completeBtn {
+  width: 100%;
+  border-radius: 999px !important;
+  background: var(--neon) !important;
+  color: #0a0a0c !important;
+  font-weight: 800 !important;
+  border: none !important;
+  box-shadow: 0 12px 36px -12px var(--neon-glow) !important;
+}
+
+.completeBtn:disabled {
+  opacity: 0.55;
+}
+
+.cardAction {
+  margin-top: 0.7rem;
+}
+
+@media (min-width: 820px) {
+  .swipeHint {
+    display: none;
+  }
+}
+
+@media (max-width: 819px) {
+  .carouselRow .sideBtn {
+    display: none;
+  }
+
+  .tripleStage {
+    min-height: min(48vh, 380px);
+  }
+
+  .slot_left {
+    transform: translate(-50%, -50%)
+      translateX(calc(-1 * min(72px, 20vw)))
+      rotateY(28deg)
+      translateZ(40px)
+      scale(0.86);
+    opacity: 0.45;
+  }
+
+  .slot_center {
+    transform: translate(-50%, -50%) translateZ(100px) scale(0.98);
+  }
+
+  .slot_right {
+    transform: translate(-50%, -50%)
+      translateX(min(72px, 20vw))
+      rotateY(-28deg)
+      translateZ(40px)
+      scale(0.86);
+    opacity: 0.45;
+  }
+
+  .routineCard {
+    width: min(260px, 86vw);
+    max-height: min(50vh, 320px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ringSlot {
+    transition: none;
+  }
+}
+
+/* Nueva interfaz limpia para las cards */
+.wrap {
+  gap: 0.65rem;
+}
+
+.carouselRow {
+  gap: clamp(0.2rem, 1vw, 0.8rem);
+}
+
+.sideBtn {
+  width: 42px;
+  height: 42px;
+  border-color: rgba(225, 255, 0, 0.28);
+  background:
+    radial-gradient(circle at 35% 25%, rgba(225, 255, 0, 0.2), transparent 42%),
+    rgba(8, 10, 12, 0.82);
+  box-shadow:
+    0 16px 34px -24px #000,
+    0 0 22px -14px var(--neon-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.sideBtn:hover {
+  background:
+    radial-gradient(circle at 35% 25%, rgba(225, 255, 0, 0.32), transparent 46%),
+    rgba(12, 16, 14, 0.94);
+  box-shadow:
+    0 18px 38px -22px #000,
+    0 0 28px -10px var(--neon-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.tripleStage {
+  max-width: min(720px, 100%);
+  min-height: min(58vh, 440px);
+  perspective: 1250px;
+  perspective-origin: 50% 45%;
+}
+
+.ringSlot {
+  top: 48%;
+}
+
+.slot_left {
+  transform: translate(-50%, -50%)
+    translateX(calc(-1 * min(168px, 25vw)))
+    rotateY(27deg)
+    translateZ(12px)
+    scale(0.86);
+  opacity: 0.52;
+}
+
+.slot_center {
+  transform: translate(-50%, -50%) translateZ(90px) scale(1);
+}
+
+.slot_right {
+  transform: translate(-50%, -50%)
+    translateX(min(168px, 25vw))
+    rotateY(-27deg)
+    translateZ(12px)
+    scale(0.86);
+  opacity: 0.52;
+}
+
+.routineCard {
+  position: relative;
+  width: min(340px, 82vw);
+  max-height: min(58vh, 410px);
+  padding: 1rem;
+  border-radius: 24px;
+  overflow: hidden auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(225, 255, 0, 0.35) transparent;
+  background:
+    radial-gradient(circle at 14% 6%, rgba(225, 255, 0, 0.16), transparent 30%),
+    radial-gradient(circle at 95% 8%, rgba(255, 255, 255, 0.09), transparent 24%),
+    linear-gradient(160deg, rgba(18, 20, 20, 0.94), rgba(7, 8, 11, 0.96));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 28px 70px -34px rgba(0, 0, 0, 0.95),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(225, 255, 0, 0.06);
+}
+
+.routineCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.14), transparent 26%),
+    linear-gradient(180deg, transparent 56%, rgba(225, 255, 0, 0.07));
+  opacity: 0.72;
+}
+
+.routineCardMain {
+  border-color: rgba(225, 255, 0, 0.36);
+  box-shadow:
+    0 34px 80px -34px rgba(0, 0, 0, 1),
+    0 0 46px -18px rgba(225, 255, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(225, 255, 0, 0.13);
+}
+
+.routineCardSide {
+  filter: saturate(0.7) brightness(0.82);
+}
+
+.cardTop,
+.focusBox,
+.statsGrid,
+.tagRow,
+.list,
+.cardAction {
+  position: relative;
+  z-index: 1;
+}
+
+.cardTop {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.75rem;
+}
+
+.dayIcon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 16px;
+  color: var(--neon);
+  background:
+    radial-gradient(circle at 40% 25%, rgba(225, 255, 0, 0.28), transparent 55%),
+    rgba(225, 255, 0, 0.08);
+  border: 1px solid rgba(225, 255, 0, 0.22);
+  box-shadow: 0 0 22px -12px var(--neon-glow);
+}
+
+.titleBlock {
+  min-width: 0;
+}
+
+.cardKicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0 0 0.18rem;
+  color: rgba(212, 212, 216, 0.72);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cardTitle {
+  margin: 0;
+  color: #fafafa;
+  font-size: clamp(1.15rem, 3.5vw, 1.55rem);
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+}
+
+.todayBadge {
+  align-self: start;
+  padding: 0.34rem 0.58rem;
+  border-radius: 999px;
+  color: #0a0a0c;
+  background: var(--neon);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 24px -10px var(--neon-glow);
+}
+
+.focusBox {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.9rem;
+  padding: 0.72rem 0.78rem;
+  border-radius: 16px;
+  color: rgba(250, 250, 250, 0.94);
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.focusBox svg {
+  flex-shrink: 0;
+  color: var(--neon);
+}
+
+.statsGrid {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: 1fr;
+  margin-top: 0.65rem;
+}
+
+.statPill {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  padding: 0.55rem 0.66rem;
+  border-radius: 14px;
+  color: rgba(244, 244, 245, 0.82);
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  font-size: 0.75rem;
+  font-weight: 750;
+}
+
+.statPill svg {
+  flex-shrink: 0;
+  color: rgba(225, 255, 0, 0.86);
+}
+
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.38rem;
+  margin-top: 0.65rem;
+}
+
+.muscleTag {
+  padding: 0.3rem 0.52rem;
+  border-radius: 999px;
+  color: rgba(225, 255, 0, 0.92);
+  background: rgba(225, 255, 0, 0.08);
+  border: 1px solid rgba(225, 255, 0, 0.14);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.42rem;
+  margin: 0.85rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+}
+
+.list li {
+  display: flex;
+  align-items: center;
+  gap: 0.62rem;
+  margin: 0;
+  padding: 0.55rem 0.62rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+.exerciseNumber {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  color: #0b0d0b;
+  background: rgba(225, 255, 0, 0.9);
+  font-size: 0.68rem;
+  font-weight: 950;
+}
+
+.exerciseText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.exerciseText strong {
+  color: rgba(250, 250, 250, 0.95);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.exerciseText small {
+  margin-top: 0.15rem;
+  color: rgba(161, 161, 170, 0.86);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.cardAction {
+  margin-top: 0.9rem;
+}
+
+.completeBtn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.45rem !important;
+  min-height: 42px !important;
+  box-shadow:
+    0 18px 40px -16px rgba(225, 255, 0, 0.85),
+    inset 0 1px 0 rgba(255, 255, 255, 0.36) !important;
+}
+
+.linkBtn {
+  font-weight: 850;
+  text-underline-offset: 5px;
+}
+
+@media (min-width: 520px) {
+  .statsGrid {
+    grid-template-columns: 0.82fr 1.18fr;
+  }
+}
+
+@media (max-width: 819px) {
+  .tripleStage {
+    min-height: min(56vh, 420px);
+  }
+
+  .slot_left {
+    transform: translate(-50%, -50%)
+      translateX(calc(-1 * min(92px, 24vw)))
+      rotateY(22deg)
+      translateZ(0)
+      scale(0.82);
+    opacity: 0.38;
+  }
+
+  .slot_center {
+    transform: translate(-50%, -50%) translateZ(72px) scale(0.98);
+  }
+
+  .slot_right {
+    transform: translate(-50%, -50%)
+      translateX(min(92px, 24vw))
+      rotateY(-22deg)
+      translateZ(0)
+      scale(0.82);
+    opacity: 0.38;
+  }
+
+  .routineCard {
+    width: min(318px, 86vw);
+    max-height: min(56vh, 400px);
+    padding: 0.9rem;
+  }
+}
+
+/* Ajuste final: contenedor premium, cards altas y movimiento real entre slots */
+.wrap {
+  isolation: isolate;
+  gap: 0.75rem;
+  padding: clamp(1rem, 2.4vw, 1.35rem);
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(225, 255, 0, 0.11), transparent 32%),
+    radial-gradient(circle at 90% 18%, rgba(255, 255, 255, 0.06), transparent 28%),
+    linear-gradient(145deg, rgba(10, 12, 14, 0.74), rgba(4, 5, 8, 0.46));
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  box-shadow:
+    0 28px 80px -54px rgba(0, 0, 0, 0.95),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.wrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent, rgba(225, 255, 0, 0.16), transparent) top / 100% 1px no-repeat,
+    radial-gradient(circle at 50% 62%, rgba(225, 255, 0, 0.08), transparent 42%);
+}
+
+.carouselHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  margin: 0 0 0.25rem;
+  color: rgba(225, 255, 0, 0.88);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.heading {
+  margin: 0;
+  color: #fafafa;
+  font-size: clamp(1.25rem, 4vw, 1.85rem);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+
+.headerMeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  max-width: 45%;
+}
+
+.headerMeta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.62rem;
+  border-radius: 999px;
+  color: rgba(244, 244, 245, 0.82);
+  background: rgba(0, 0, 0, 0.24);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.carouselRow {
+  touch-action: pan-y;
+}
+
+.perspectiveHost {
+  min-height: min(72vh, 590px);
+}
+
+.tripleStage {
+  cursor: grab;
+  max-width: min(820px, 100%);
+  min-height: min(72vh, 590px);
+}
+
+.tripleStage:active {
+  cursor: grabbing;
+}
+
+.ringSlot {
+  top: 51%;
+  transition:
+    transform 0.68s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.48s ease,
+    filter 0.48s ease;
+}
+
+.slot_left {
+  transform: translate(-50%, -50%)
+    translateX(calc(-1 * min(220px, 29vw)))
+    rotateY(22deg)
+    translateZ(-8px)
+    scale(0.82);
+}
+
+.slot_center {
+  transform: translate(-50%, -50%) translateZ(96px) scale(1);
+}
+
+.slot_right {
+  transform: translate(-50%, -50%)
+    translateX(min(220px, 29vw))
+    rotateY(-22deg)
+    translateZ(-8px)
+    scale(0.82);
+}
+
+.routineCard {
+  width: min(370px, 84vw);
+  height: min(66vh, 540px);
+  max-height: min(66vh, 540px);
+  padding: 1.08rem;
+  border-radius: 28px;
+}
+
+.routineCardSide {
+  filter: saturate(0.62) brightness(0.74) blur(0.15px);
+}
+
+.routineCardMain {
+  transform: translateZ(0);
+}
+
+.list {
+  gap: 0.5rem;
+  padding-bottom: 0.15rem;
+}
+
+.list li {
+  padding: 0.68rem 0.72rem;
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
+  margin-top: -0.1rem;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  cursor: pointer;
+  transition:
+    width 0.24s ease,
+    background 0.24s ease,
+    box-shadow 0.24s ease;
+}
+
+.dotActive {
+  width: 28px;
+  background: var(--neon);
+  box-shadow: 0 0 22px -8px var(--neon-glow);
+}
+
+@media (max-width: 819px) {
+  .wrap {
+    padding: 0.95rem 0.25rem 1rem;
+    border-radius: 24px;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(225, 255, 0, 0.09), transparent 36%),
+      linear-gradient(180deg, rgba(10, 12, 14, 0.58), rgba(4, 5, 8, 0.28));
+  }
+
+  .carouselHeader {
+    padding: 0 0.75rem;
+  }
+
+  .headerMeta {
+    display: none;
+  }
+
+  .perspectiveHost {
+    min-height: min(70vh, 560px);
+  }
+
+  .tripleStage {
+    min-height: min(70vh, 560px);
+  }
+
+  .ringSlot {
+    top: 50%;
+  }
+
+  .slot_left {
+    transform: translate(-50%, -50%)
+      translateX(calc(-1 * min(116px, 30vw)))
+      rotateY(16deg)
+      translateZ(-18px)
+      scale(0.78);
+  }
+
+  .slot_center {
+    transform: translate(-50%, -50%) translateZ(68px) scale(1);
+  }
+
+  .slot_right {
+    transform: translate(-50%, -50%)
+      translateX(min(116px, 30vw))
+      rotateY(-16deg)
+      translateZ(-18px)
+      scale(0.78);
+  }
+
+  .routineCard {
+    width: min(342px, 88vw);
+    height: min(64vh, 520px);
+    max-height: min(64vh, 520px);
+    padding: 0.95rem;
+  }
+}
+
+/* Las cards crecen con el contenido: sin scroll vertical interno. */
+.perspectiveHost {
+  min-height: 690px;
+}
+
+.tripleStage {
+  min-height: 690px;
+}
+
+.routineCard {
+  height: auto;
+  min-height: 610px;
+  max-height: none;
+  overflow: visible;
+}
+
+@media (max-width: 819px) {
+  .perspectiveHost,
+  .tripleStage {
+    min-height: 660px;
+  }
+
+  .routineCard {
+    min-height: 600px;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+/* Nitidez: evitar rasterizado borroso en texto y quitar blur de cards laterales. */
+.ringSlot,
+.routineCard {
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+.slot_center {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.slot_left {
+  transform: translate(-50%, -50%)
+    translateX(calc(-1 * min(220px, 29vw)))
+    rotateY(18deg)
+    scale(0.86);
+}
+
+.slot_right {
+  transform: translate(-50%, -50%)
+    translateX(min(220px, 29vw))
+    rotateY(-18deg)
+    scale(0.86);
+}
+
+.routineCardSide {
+  filter: saturate(0.78) brightness(0.84);
+}
+
+@media (max-width: 819px) {
+  .slot_center {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .slot_left {
+    transform: translate(-50%, -50%)
+      translateX(calc(-1 * min(116px, 30vw)))
+      rotateY(12deg)
+      scale(0.82);
+  }
+
+  .slot_right {
+    transform: translate(-50%, -50%)
+      translateX(min(116px, 30vw))
+      rotateY(-12deg)
+      scale(0.82);
+  }
+}
+
+/* Mobile: una card nítida, sin superposición lateral ni efectos costosos. */
+@media (max-width: 819px) {
+  .wrap {
+    overflow: hidden;
+    contain: layout paint;
+  }
+
+  .carouselRow {
+    overflow: hidden;
+    touch-action: pan-y;
+  }
+
+  .perspectiveHost {
+    display: block;
+    width: 100%;
+    min-height: 690px;
+    overflow: hidden;
+  }
+
+  .tripleStage {
+    width: 100%;
+    min-height: 690px;
+    perspective: none;
+    transform-style: flat;
+    cursor: grab;
+  }
+
+  .ringSlot {
+    left: 50%;
+    top: 0;
+    transform-style: flat;
+    transition:
+      transform 0.34s ease,
+      opacity 0.24s ease;
+    will-change: auto;
+  }
+
+  .slot_left {
+    display: block;
+    pointer-events: none;
+    transform: translateX(-168%) scale(0.96);
+    z-index: 1;
+  }
+
+  .slot_center {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+    z-index: 3;
+  }
+
+  .slot_right {
+    display: block;
+    pointer-events: none;
+    transform: translateX(68%) scale(0.96);
+    z-index: 1;
+  }
+
+  .routineCard {
+    width: min(350px, calc(100vw - 48px));
+    min-height: 650px;
+    max-height: none;
+    padding: 0.95rem;
+    overflow: visible;
+    backdrop-filter: none;
+    box-shadow:
+      0 18px 44px -28px rgba(0, 0, 0, 0.95),
+      0 0 28px -18px rgba(225, 255, 0, 0.7),
+      inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  }
+
+  .routineCard::before {
+    opacity: 0.38;
+  }
+
+  .routineCardSide {
+    filter: none;
+  }
+
+  .cardTop {
+    gap: 0.62rem;
+  }
+
+  .dayIcon {
+    width: 38px;
+    height: 38px;
+    border-radius: 14px;
+  }
+
+  .focusBox,
+  .statPill,
+  .list li {
+    backdrop-filter: none;
+  }
+
+  .list li {
+    padding: 0.62rem;
+  }
+
+  .todayLink {
+    margin-top: 0.1rem;
+  }
+}

@@ -59,7 +59,7 @@ export default function AdminHome({
           </span>
           <h3 className={styles.cardTitle}>Registrar socio</h3>
           <p className={styles.cardDesc}>
-            Creá un nuevo usuario en tu gimnasio, asignás rol y configurás los
+            Crea un nuevo usuario en tu gimnasio, asigna rol y configura los
             días iniciales de membresía.
           </p>
           <span className={styles.cardCta}>
@@ -85,13 +85,13 @@ export default function AdminHome({
           <span className={`${styles.icon} ${styles.accent}`}>
             <Monitor size={22} />
           </span>
-          <h3 className={styles.cardTitle}>Modo Totem</h3>
+          <h3 className={styles.cardTitle}>Modo tótem</h3>
           <p className={styles.cardDesc}>
             Pantalla fullscreen para la entrada. Muestra el QR rotativo y
             saluda al socio en tiempo real.
           </p>
           <span className={styles.cardCta}>
-            Abrir totem <ArrowUpRight size={14} />
+            Abrir tótem <ArrowUpRight size={14} />
           </span>
         </Link>
 
@@ -115,7 +115,7 @@ export default function AdminHome({
           </span>
           <h3 className={styles.cardTitle}>Pagos</h3>
           <p className={styles.cardDesc}>
-            Aceptá pagos en efectivo o transferencia y extendé automáticamente
+            Acepta pagos en efectivo o transferencia y extiende automáticamente
             los días de membresía del socio.
           </p>
           <span className={styles.cardCta}>
@@ -143,8 +143,8 @@ export default function AdminHome({
           </span>
           <h3 className={styles.cardTitle}>Descuentos</h3>
           <p className={styles.cardDesc}>
-            Creá promos automáticas o por código único, activá/desactivá con un
-            toque y revisá los usos.
+            Crea promos automáticas o por código único, activa/desactiva con un
+            toque y revisa los usos.
           </p>
           <span className={styles.cardCta}>
             Gestionar <ArrowUpRight size={14} />
@@ -208,7 +208,7 @@ function GymStatusBanner({
           {daysLeft !== null
             ? `Te quedan ${daysLeft} día${daysLeft === 1 ? "" : "s"} de prueba.`
             : "Estás en período de prueba."}{" "}
-          Mantené tu cuenta activa registrando tu pago en NaturalPack.
+          Mantén tu cuenta activa registrando tu pago en NaturalPack.
         </p>
       </div>
     </div>

@@ -45,8 +45,8 @@ export function requireSession(): JwtPayload {
 
 /**
  * Lee la sesión y exige rol admin del gym. El superadmin NO pasa este chequeo
- * porque no pertenece a ningún gym — para operaciones de gym usá requireAdmin,
- * para operaciones de plataforma usá requireSuperadmin.
+ * porque no pertenece a ningún gym — para operaciones de gym usa requireAdmin,
+ * para operaciones de plataforma usa requireSuperadmin.
  */
 export function requireAdmin(): JwtPayload {
   const session = requireSession();

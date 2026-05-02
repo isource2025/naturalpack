@@ -12,7 +12,14 @@ import type {
   LoginInput,
   RegisterInput,
   Role,
+  TrainingOnboardingInput,
 } from "../dtos";
+import {
+  decideTrainingLevel,
+  pickPlan,
+  type TrainingLevel,
+  type TrainingGoal,
+} from "../trainingPlans";
 
 const DEFAULT_TRIAL_DAYS = 30;
 
@@ -42,7 +49,7 @@ export const authService = {
       const existingGym = await gymRepository.findBySlug(slug);
       if (existingGym) {
         throw new ConflictError(
-          `Ya existe un gimnasio con ese nombre (código: ${slug}). Probá otro nombre.`
+          `Ya existe un gimnasio con ese nombre (código: ${slug}). Prueba otro nombre.`
         );
       }
       const created = await gymRepository.create({
@@ -172,6 +179,41 @@ export const authService = {
           }
         : null,
       qrCode: qr?.code ?? null,
+      trainingProfile:
+        user.trainingLevel && user.trainingPlanKey
+          ? {
+              level: user.trainingLevel as TrainingLevel,
+              goal: (user.trainingGoal ?? "fuerza") as TrainingGoal,
+              planKey: user.trainingPlanKey,
+              onboardingCompletedAt: user.onboardingCompletedAt
+                ? user.onboardingCompletedAt.toISOString()
+                : new Date().toISOString(),
+            }
+          : null,
+    };
+  },
+
+  async completeTrainingOnboarding(session: JwtPayload, input: TrainingOnboardingInput) {
+    const user = await userRepository.findById(session.sub);
+    if (!user) throw new NotFoundError("Usuario no encontrado");
+    if (user.role !== "client") {
+      throw new UnauthorizedError("Solo los clientes deben completar este formulario");
+    }
+
+    const level = decideTrainingLevel(input);
+    const plan = pickPlan(level, input.preferredGoal);
+
+    await userRepository.setTrainingProfile(user.id, {
+      trainingLevel: level,
+      trainingGoal: input.preferredGoal,
+      trainingPlanKey: plan.key,
+      onboardingCompletedAt: new Date(),
+    });
+
+    return {
+      level,
+      goal: input.preferredGoal,
+      plan,
     };
   },
 };

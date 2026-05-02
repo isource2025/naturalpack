@@ -23,8 +23,8 @@ function title(s: StreakInfo, first: string) {
   if (s.status === "at_risk" && s.streakDays > 0) {
     return `¡Cuidado con tu racha!`;
   }
-  if (s.daysThisWeek === 1) return `¡Sumá otra esta semana!`;
-  return `Arrancá tu racha 💪`;
+  if (s.daysThisWeek === 1) return `¡Suma otra esta semana!`;
+  return `Arranca tu racha 💪`;
 }
 
 function subtitle(s: StreakInfo) {
@@ -35,9 +35,9 @@ function subtitle(s: StreakInfo) {
     return `Te falta${s.neededThisWeek === 1 ? "" : "n"} ${s.neededThisWeek} visita${s.neededThisWeek === 1 ? "" : "s"} para mantener la racha esta semana.`;
   }
   if (s.daysThisWeek === 1) {
-    return `Con ${s.weekGoal} entradas por semana mantenés la racha.`;
+    return `Con ${s.weekGoal} entradas por semana mantienes la racha.`;
   }
-  return `Entrená al menos ${s.weekGoal} veces esta semana para arrancar.`;
+  return `Entrena al menos ${s.weekGoal} veces esta semana para arrancar.`;
 }
 
 export default function StreakBanner({ firstName }: { firstName: string }) {

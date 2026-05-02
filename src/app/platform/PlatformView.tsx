@@ -206,7 +206,7 @@ export default function PlatformView() {
         {!selected && (
           <aside className={styles.detailEmpty}>
             <Building2 size={28} />
-            <p>Seleccioná un gimnasio para ver detalles y registrar pagos.</p>
+            <p>Selecciona un gimnasio para ver detalles y registrar pagos.</p>
           </aside>
         )}
       </div>
@@ -412,8 +412,8 @@ function GymsTable({
     return (
       <div className={styles.emptyCard}>
         Todavía no hay gimnasios. Cuando un dueño complete{" "}
-        <code>/register?as=owner</code> (o cuando crees uno desde acá),
-        aparecerá acá.
+        <code>/register?as=owner</code> (o cuando crees uno desde aquí),
+        aparecerá en la lista.
       </div>
     );
   }
@@ -580,7 +580,7 @@ function GymDetail({
     setFormError(null);
     const parsed = Number(amount);
     if (!Number.isFinite(parsed) || parsed < 1) {
-      setFormError("Ingresá un monto válido");
+      setFormError("Ingresa un monto válido");
       return;
     }
     setSubmitting(true);
@@ -773,7 +773,7 @@ function GymDetail({
           ) : (
             <>
               <p className={styles.dangerDesc}>
-                Para confirmar, escribí el código{" "}
+                Para confirmar, escribe el código{" "}
                 <code>{gym.slug}</code> exactamente.
               </p>
               <Input

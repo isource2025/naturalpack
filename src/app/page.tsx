@@ -49,7 +49,7 @@ export default function HomePage() {
         <p className={styles.subtitle}>
           {appName} es la plataforma para que cualquier gimnasio maneje sus
           socios, accesos y pagos desde un panel — y para que los socios entren
-          con un QR en segundos. Abrí tu gimnasio o sumate a uno existente.
+          con un QR en segundos. Abre tu gimnasio o únete a uno existente.
         </p>
 
         <div className={styles.pathRow}>
@@ -60,8 +60,8 @@ export default function HomePage() {
             <span className={styles.pathBadge}>Para dueños</span>
             <span className={styles.pathTitle}>Tengo un gimnasio</span>
             <span className={styles.pathDesc}>
-              Abrí tu gimnasio en la plataforma, activá el totem con QR y
-              empezá a registrar socios y pagos hoy mismo.
+              Abre tu gimnasio en la plataforma, activa el tótem con QR y
+              empieza a registrar socios y pagos hoy mismo.
             </span>
             <span className={styles.pathCta}>
               Abrir mi gimnasio <ArrowRight size={16} />
@@ -78,11 +78,11 @@ export default function HomePage() {
             <span className={styles.pathBadge}>Para socios</span>
             <span className={styles.pathTitle}>Voy a un gimnasio</span>
             <span className={styles.pathDesc}>
-              Creá tu cuenta, sumate al gimnasio al que asistís con el código
-              que te pasa el personal y empezá a entrar con tu QR.
+              Crea tu cuenta, únete al gimnasio al que vas con el código
+              que te pasa el personal y empieza a entrar con tu QR.
             </span>
             <span className={styles.pathCta}>
-              Sumarme a un gym <ArrowRight size={16} />
+              Unirme a un gym <ArrowRight size={16} />
             </span>
           </Link>
         </div>
@@ -95,7 +95,7 @@ export default function HomePage() {
           </span>
           <h3 className={styles.featureTitle}>QR en pantalla</h3>
           <p className={styles.featureDesc}>
-            Cada gimnasio tiene su propio totem con un QR rotativo. El socio lo
+            Cada gimnasio tiene su propio tótem con un QR rotativo. El socio lo
             escanea con la cámara del teléfono y listo.
           </p>
         </div>
@@ -115,7 +115,7 @@ export default function HomePage() {
           </span>
           <h3 className={styles.featureTitle}>Un panel por gym</h3>
           <p className={styles.featureDesc}>
-            Registrá socios, aceptá pagos, mirá accesos y cerrá caja. Cada
+            Registra socios, acepta pagos, revisa accesos y cierra caja. Cada
             admin solo ve lo suyo.
           </p>
         </div>

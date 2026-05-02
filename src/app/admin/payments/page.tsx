@@ -23,7 +23,7 @@ export default function AdminPaymentsPage() {
     <>
       <Nav
         title="Pagos"
-        subtitle="Aceptá pagos y extendé la membresía"
+        subtitle="Acepta pagos y extiende la membresía"
         actions={
           <>
             <Badge tone="brand" dot>

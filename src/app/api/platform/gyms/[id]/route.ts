@@ -29,7 +29,7 @@ export const DELETE = handle(
     const confirm = req.nextUrl.searchParams.get("confirm");
     if (confirm !== gym.slug) {
       throw new ValidationError(
-        `Para borrar este gym enviá ?confirm=${gym.slug}`
+        `Para borrar este gym envía ?confirm=${gym.slug}`
       );
     }
 

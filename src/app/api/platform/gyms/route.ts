@@ -52,7 +52,7 @@ export const POST = handle(async (req: NextRequest) => {
   const existing = await gymRepository.findBySlug(slug);
   if (existing) {
     throw new ConflictError(
-      `Ya existe un gimnasio con el código "${slug}". Probá otro nombre o especificá un slug distinto.`
+      `Ya existe un gimnasio con el código "${slug}". Prueba otro nombre o especifica un slug distinto.`
     );
   }
 

@@ -283,9 +283,9 @@ function EmptyDetail() {
       <div className={styles.emptyIcon}>
         <User2 size={28} />
       </div>
-      <h3 style={{ margin: 0 }}>Seleccioná un acceso</h3>
+      <h3 style={{ margin: 0 }}>Selecciona un acceso</h3>
       <p className={styles.hint}>
-        La información del socio aparecerá acá.
+        La información del socio aparecerá aquí.
       </p>
     </div>
   );

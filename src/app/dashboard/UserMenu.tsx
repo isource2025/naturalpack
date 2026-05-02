@@ -224,7 +224,7 @@ export default function UserMenu({
                 />
 
                 <Input
-                  label="Repetí la nueva"
+                  label="Repite la nueva"
                   type="password"
                   required
                   minLength={6}

@@ -85,11 +85,11 @@ export default function NewUserForm() {
     e.preventDefault();
     setState({ kind: "idle" });
     if (!form.name.trim() || form.name.trim().length < 2) {
-      setState({ kind: "error", message: "Ingresá un nombre válido (mín. 2 caracteres)." });
+      setState({ kind: "error", message: "Ingresa un nombre válido (mín. 2 caracteres)." });
       return;
     }
     if (!form.email.trim()) {
-      setState({ kind: "error", message: "Ingresá un email." });
+      setState({ kind: "error", message: "Ingresa un email." });
       return;
     }
     if (!form.password || form.password.length < 6) {
@@ -123,7 +123,7 @@ export default function NewUserForm() {
           return;
         }
         if (!Number.isFinite(form.amount) || form.amount < 1) {
-          setState({ kind: "error", message: "Ingresá el costo a cobrar (mayor a 0)." });
+          setState({ kind: "error", message: "Ingresa el costo a cobrar (mayor a 0)." });
           return;
         }
       } else if (form.membershipDays < 0 || form.membershipDays > 3650) {
@@ -227,8 +227,8 @@ export default function NewUserForm() {
             {step === 1
               ? "Primero cargamos los datos del socio."
               : form.role === "admin"
-                ? "Definí los días iniciales de acceso (si aplica) y confirmá el alta."
-                : "Asigná días y costo en el mismo paso. El monto lo definís vos, sin sugerencias automáticas."}
+                ? "Define los días iniciales de acceso (si aplica) y confirma el alta."
+                : "Asigna días y costo en el mismo paso. El monto lo defines tú, sin sugerencias automáticas."}
           </p>
         </div>
         <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
@@ -406,7 +406,7 @@ export default function NewUserForm() {
                 value={form.membershipDays}
                 onChange={(e) => setDays(Number(e.target.value))}
                 leftIcon={<CalendarDays size={16} />}
-                hint="Los días que sumás al plan del socio van acá, junto al costo."
+                hint="Los días que sumas al plan del socio van aquí, junto al costo."
               />
 
               <div className={styles.presets} aria-label="Plantillas de días">
@@ -438,7 +438,7 @@ export default function NewUserForm() {
                     : "—"}
                 </div>
                 <p className={styles.totalHint}>
-                  Ingresá abajo el monto que cobrás; no hay sugerencia automática.
+                  Ingresa abajo el monto que cobras; no hay sugerencia automática.
                 </p>
               </div>
 
@@ -453,7 +453,7 @@ export default function NewUserForm() {
                     className={styles.amountInput}
                     type="number"
                     min={1}
-                    step={100}
+                    step={1}
                     value={form.amount || ""}
                     disabled={!form.registerPayment}
                     onChange={(e) =>

@@ -64,9 +64,9 @@ function LoginForm() {
   return (
     <>
       <span className={styles.eyebrow}>¡Bienvenido de nuevo!</span>
-      <h1 className={styles.title}>Entrá y a entrenar 💪</h1>
+      <h1 className={styles.title}>Entra y a entrenar 💪</h1>
       <p className={styles.subtitle}>
-        Ingresá con tu cuenta para acceder a tu panel.
+            Ingresa con tu cuenta para acceder a tu panel.
       </p>
 
       <form onSubmit={onSubmit} className={styles.form}>
@@ -106,7 +106,7 @@ function LoginForm() {
         </Button>
 
         <p className={styles.footer}>
-          ¿Todavía no tenés cuenta? <Link href="/register">Creala en 30s</Link>
+          ¿Todavía no tienes cuenta? <Link href="/register">Créala en 30s</Link>
         </p>
       </form>
     </>

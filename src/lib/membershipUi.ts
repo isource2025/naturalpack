@@ -13,14 +13,14 @@ export function isMembershipCritical(daysRemaining: number): boolean {
 
 export function membershipCriticalBannerLine(firstName: string, days: number) {
   if (days === 1) {
-    return `¡${firstName}, solo te queda 1 día de membresía! Pasá por recepción 🚨`;
+    return `¡${firstName}, solo te queda 1 día de membresía! Pasa por recepción 🚨`;
   }
-  return `¡${firstName}, te quedan ${days} días de membresía! Renová antes de que venza 🚨`;
+  return `¡${firstName}, te quedan ${days} días de membresía! Renueva antes de que venza 🚨`;
 }
 
 export function membershipCriticalCardNote(days: number) {
-  if (days === 1) return "⏳ Último día — acercate a recepción sin falta.";
-  return `⏳ Quedan ${days} días — renová en recepción 🔴`;
+  if (days === 1) return "⏳ Último día — pasa por recepción sin falta.";
+  return `⏳ Quedan ${days} días — renueva en recepción 🔴`;
 }
 
 export function membershipCriticalKioskTitle() {
@@ -28,11 +28,11 @@ export function membershipCriticalKioskTitle() {
 }
 
 export function membershipCriticalKioskHint(days: number) {
-  if (days === 1) return "Solo te queda 1 día — pasá por caja o recepción 🔴";
-  return `Te quedan ${days} días — renová en recepción 🔴`;
+  if (days === 1) return "Solo te queda 1 día — pasa por caja o recepción 🔴";
+  return `Te quedan ${days} días — renueva en recepción 🔴`;
 }
 
 /** Texto después del contador de días en la pantalla de escaneo del socio. */
 export function membershipCriticalScannerRenewHint() {
-  return "⚠️ Renová en recepción cuanto antes 🔴";
+  return "⚠️ Renueva en recepción cuanto antes 🔴";
 }

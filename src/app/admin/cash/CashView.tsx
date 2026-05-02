@@ -148,7 +148,7 @@ export default function CashView() {
     if (!Number.isFinite(declared) || declared < 0) {
       setFeedback({
         kind: "err",
-        message: "Ingresá el efectivo contado al cierre (número ≥ 0).",
+        message: "Ingresa el efectivo contado al cierre (número ≥ 0).",
       });
       return;
     }
@@ -206,7 +206,7 @@ export default function CashView() {
         </h2>
         <p className={styles.cardHint}>
           Resumen del efectivo según tickets desde el último cierre. Antes de
-          cerrar, ingresá el efectivo que contaste físicamente y deslizá el
+          cerrar, ingresa el efectivo que contaste físicamente y desliza el
           candado hasta el final para confirmar.
         </p>
 
@@ -356,7 +356,7 @@ export default function CashView() {
           <Receipt size={18} /> Historial por día
         </h2>
         <p className={styles.cardHint}>
-          Últimos 30 días. Tocá un día para ver el detalle de cada pago.
+          Últimos 30 días. Toca un día para ver el detalle de cada pago.
         </p>
         {loading ? (
           <p className={styles.empty}>Cargando…</p>

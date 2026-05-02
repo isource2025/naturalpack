@@ -15,7 +15,7 @@ export async function ensureGymActive(gymId: string): Promise<void> {
   if (!gym) throw new NotFoundError("Gimnasio no encontrado");
   if (gym.status === "suspended") {
     throw new ForbiddenError(
-      "Este gimnasio está suspendido en la plataforma. Contactá al soporte de NaturalPack para reactivarlo."
+      "Este gimnasio está suspendido en la plataforma. Contacta al soporte de NaturalPack para reactivarlo."
     );
   }
 }

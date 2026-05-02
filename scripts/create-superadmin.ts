@@ -4,7 +4,7 @@
  * Uso:
  *   npm run create-superadmin -- --email you@mail.com --password secret --name "Tu Nombre"
  *
- * Si no pasás argumentos, intenta leer de variables de entorno:
+ * Si no pasas argumentos, intenta leer de variables de entorno:
  *   SUPERADMIN_EMAIL, SUPERADMIN_PASSWORD, SUPERADMIN_NAME
  *
  * Crea (si no existen):
@@ -87,7 +87,7 @@ async function main() {
   console.log(`\n✔ Superadmin creado: ${user.email}`);
   console.log(`  id: ${user.id}`);
   console.log(`  gym técnico: ${PLATFORM_GYM_SLUG}`);
-  console.log(`  ahora podés loguearte en /login y entrar a /platform.`);
+  console.log(`  ahora puedes iniciar sesión en /login y entrar a /platform.`);
 }
 
 main()

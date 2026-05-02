@@ -1,4 +1,5 @@
 import { accessLogRepository } from "../repositories/accessLogRepository";
+import { trainingSessionRepository } from "../repositories/trainingSessionRepository";
 
 /**
  * Servicio de cálculo de racha semanal.
@@ -68,12 +69,23 @@ export const streakService = {
     const since = addDays(weekStart, -7 * LOOKBACK_WEEKS);
 
     const rows = await accessLogRepository.grantedTimestamps(userId, since);
+    const completedRows = await trainingSessionRepository.completedTimestamps(userId, since);
 
     // Agrupamos en semanas → set de días distintos.
     const byWeek = new Map<string, Set<string>>();
     for (const { timestamp } of rows) {
       const wk = weekKey(timestamp);
       const dk = dayKey(timestamp);
+      let s = byWeek.get(wk);
+      if (!s) {
+        s = new Set();
+        byWeek.set(wk, s);
+      }
+      s.add(dk);
+    }
+    for (const { completedAt } of completedRows) {
+      const wk = weekKey(completedAt);
+      const dk = dayKey(completedAt);
       let s = byWeek.get(wk);
       if (!s) {
         s = new Set();

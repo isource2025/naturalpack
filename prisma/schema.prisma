@@ -34,6 +34,8 @@ model Gym {
   cashCloses       CashClose[]
   platformPayments PlatformPayment[]
   kioskSessions    KioskSession[]
+  trainingSessions TrainingSessionCompletion[]
+  bmiEntries       BmiEntry[]
 }
 
 // Nota: Prisma+SQLite no soporta enums nativos. Usamos String validado a nivel app
@@ -47,6 +49,10 @@ model User {
   role       String   @default("client") // "client" | "admin" | "superadmin"
   photoUrl   String?
   gymId      String
+  trainingLevel String? // "novato" | "intermedio" | "avanzado"
+  trainingGoal  String? // "intensidad" | "fuerza" | "hipertrofia"
+  trainingPlanKey String? // rutina asignada (ej: "novato-fuerza")
+  onboardingCompletedAt DateTime?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -60,6 +66,8 @@ model User {
   audits           AuditLog[]    @relation("AuditActor")
   cashClosesDone   CashClose[]   @relation("CashCloseAdmin")
   platformPaymentsRecorded PlatformPayment[] @relation("PlatformPaymentRecorder")
+  trainingSessions TrainingSessionCompletion[]
+  bmiEntries       BmiEntry[]
 
   @@index([gymId])
 }
@@ -271,4 +279,37 @@ model KioskToken {
 
   @@index([sessionId])
   @@index([expiresAt])
+}
+
+model TrainingSessionCompletion {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gymId       String?
+  gym         Gym?     @relation(fields: [gymId], references: [id], onDelete: SetNull)
+  dayKey      String   // YYYY-MM-DD
+  planKey     String?
+  dayName     String?
+  completedAt DateTime @default(now())
+
+  @@unique([userId, dayKey])
+  @@index([userId, completedAt])
+  @@index([gymId, completedAt])
+}
+
+model BmiEntry {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gymId      String?
+  gym        Gym?     @relation(fields: [gymId], references: [id], onDelete: SetNull)
+  heightCm   Float
+  weightKg   Float
+  bmi        Float
+  category   String
+  measuredAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  @@index([userId, measuredAt])
+  @@index([gymId, measuredAt])
 }

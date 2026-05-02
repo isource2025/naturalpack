@@ -1,9 +1,10 @@
 import { z } from "zod";
+import { TrainingGoals, TrainingLevels } from "./trainingPlans";
 
 /**
  * Registro público — modo SaaS. Dos caminos:
- *  - "owner": creás un gimnasio nuevo y quedás como admin del mismo.
- *  - "client": te sumás a un gimnasio existente usando su código (slug).
+ *  - "owner": creas un gimnasio nuevo y quedas como admin del mismo.
+ *  - "client": te sumas a un gimnasio existente usando su código (slug).
  * La unión discriminada por `mode` hace que TS narre correctamente los
  * campos requeridos según el caso.
  */
@@ -31,7 +32,7 @@ export const ClientRegisterDTO = z.object({
     .string()
     .trim()
     .toLowerCase()
-    .min(1, "Ingresá el código del gym")
+    .min(1, "Ingresa el código del gym")
     .max(80),
 });
 export type ClientRegisterInput = z.infer<typeof ClientRegisterDTO>;
@@ -85,7 +86,7 @@ export type PlatformPaymentMethod = (typeof PlatformPaymentMethods)[number];
 
 export const GymCreateDTO = z.object({
   name: z.string().trim().min(2, "Nombre muy corto").max(80),
-  /** Si no pasás slug, se genera desde el nombre. */
+  /** Si no pasas slug, se genera desde el nombre. */
   slug: z
     .string()
     .trim()
@@ -134,7 +135,7 @@ export type PlatformPaymentCreateInput = z.infer<
 
 export const ChangePasswordDTO = z
   .object({
-    currentPassword: z.string().min(1, "Ingresá tu contraseña actual"),
+    currentPassword: z.string().min(1, "Ingresa tu contraseña actual"),
     newPassword: z
       .string()
       .min(6, "Mínimo 6 caracteres")
@@ -210,7 +211,7 @@ export const DiscountCreateDTO = z
   })
   .refine(
     (v) => v.percentOff || v.amountOff,
-    { message: "Definí porcentaje o monto fijo", path: ["percentOff"] }
+    { message: "Define porcentaje o monto fijo", path: ["percentOff"] }
   )
   .refine(
     (v) => v.kind !== "code" || !!v.code,
@@ -250,3 +251,26 @@ export const DiscountActiveDTO = z.object({
   active: z.boolean(),
 });
 export type DiscountActiveInput = z.infer<typeof DiscountActiveDTO>;
+
+export const TrainingOnboardingDTO = z.object({
+  experienceScore: z.coerce.number().int().min(0).max(4),
+  techniqueScore: z.coerce.number().int().min(0).max(4),
+  frequencyScore: z.coerce.number().int().min(0).max(4),
+  preferredGoal: z.enum(TrainingGoals),
+});
+export type TrainingOnboardingInput = z.infer<typeof TrainingOnboardingDTO>;
+
+export const TrainingLevelDTO = z.enum(TrainingLevels);
+export type TrainingLevelInput = z.infer<typeof TrainingLevelDTO>;
+
+export const CompleteTrainingSessionDTO = z.object({
+  planKey: z.string().trim().min(1).max(120).optional(),
+  dayName: z.string().trim().min(1).max(120).optional(),
+});
+export type CompleteTrainingSessionInput = z.infer<typeof CompleteTrainingSessionDTO>;
+
+export const BmiEntryCreateDTO = z.object({
+  heightCm: z.coerce.number().min(80).max(260),
+  weightKg: z.coerce.number().min(25).max(350),
+});
+export type BmiEntryCreateInput = z.infer<typeof BmiEntryCreateDTO>;

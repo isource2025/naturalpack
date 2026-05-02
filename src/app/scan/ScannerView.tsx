@@ -118,7 +118,7 @@ export default function ScannerView({
       setUi({
         kind: "error",
         message:
-          "Tu navegador bloquea la cámara en conexiones no seguras. Abrí esta página con HTTPS o desde localhost.",
+          "Tu navegador bloquea la cámara en conexiones no seguras. Abre esta página con HTTPS o desde localhost.",
       });
       return;
     }
@@ -181,7 +181,7 @@ export default function ScannerView({
       let friendly = `No se pudo abrir la cámara: ${raw}`;
       if (/denied|not allowed|permission/i.test(raw)) {
         friendly =
-          "Permiso de cámara denegado. Revisalo en el candado de la barra de direcciones y volvé a intentar.";
+          "Permiso de cámara denegado. Revísalo en el candado de la barra de direcciones y vuelve a intentar.";
       } else if (/notfound|devicesnotfound|no camera/i.test(raw)) {
         friendly = "No se encontró una cámara utilizable.";
       } else if (/inUse|NotReadable|busy/i.test(raw)) {
@@ -246,16 +246,16 @@ export default function ScannerView({
               {ui.kind === "submitting"
                 ? "Ya estamos confirmando tu entrada, no cierres la pantalla."
                 : ui.kind === "result" && ui.data.status === "granted"
-                ? "El personal ya te vio. Pasá tranquilo a la sala."
-                : "Mostrá este mensaje al personal si hace falta."}
+                ? "El personal ya te vio. Pasa tranquilo a la sala."
+                : "Muestra este mensaje en recepción si hace falta."}
             </p>
           </>
         ) : (
           <>
-            <p className={styles.eyebrow}>Escaneá para ingresar</p>
-            <h1 className={styles.title}>Apuntá al QR de la pantalla</h1>
+            <p className={styles.eyebrow}>Escanea para ingresar</p>
+            <h1 className={styles.title}>Apunta al QR de la pantalla</h1>
             <p className={styles.subtitle}>
-              Abrí la cámara y apuntá al código que aparece en la pantalla del gym.
+              Abre la cámara y apunta al código que aparece en la pantalla del gym.
             </p>
           </>
         )}

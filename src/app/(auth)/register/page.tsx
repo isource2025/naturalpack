@@ -106,15 +106,15 @@ function RegisterWizard() {
       </button>
 
       <span className={styles.eyebrow}>
-        {isOwner ? "Abrí tu gimnasio" : "Sumate a un gimnasio"}
+        {isOwner ? "Abre tu gimnasio" : "Únete a un gimnasio"}
       </span>
       <h1 className={styles.title}>
-        {isOwner ? "Creá tu cuenta de dueño" : "Creá tu cuenta de socio"}
+        {isOwner ? "Crea tu cuenta de dueño" : "Crea tu cuenta de socio"}
       </h1>
       <p className={styles.subtitle}>
         {isOwner
           ? "Te damos de alta como admin del gym y generamos tu código para que tus socios se registren."
-          : "Ingresá el código del gym (te lo pasa el personal) y quedás listo para entrar con tu QR."}
+          : "Ingresa el código del gym (te lo pasa el personal) y quedas listo para entrar con tu QR."}
       </p>
 
       <form onSubmit={onSubmit} className={styles.form}>
@@ -151,7 +151,7 @@ function RegisterWizard() {
           autoComplete="new-password"
           placeholder="Mínimo 6 caracteres"
           leftIcon={<Lock size={18} />}
-          hint="Elegí algo que recuerdes, podés cambiarla después."
+          hint="Elige algo que recuerdes; puedes cambiarla después."
         />
 
         {isOwner ? (
@@ -165,7 +165,7 @@ function RegisterWizard() {
             minLength={2}
             placeholder="Crossfit Zona Norte"
             leftIcon={<Dumbbell size={18} />}
-            hint="Usamos este nombre para todo: totem, panel y código del gym."
+            hint="Usamos este nombre para todo: tótem, panel y código del gym."
           />
         ) : (
           <Input
@@ -178,7 +178,7 @@ function RegisterWizard() {
             minLength={1}
             placeholder="crossfit-zona-norte"
             leftIcon={<Hash size={18} />}
-            hint="Se lo pedís al personal del gym al que asistís."
+            hint="Pídeselo al personal del gym al que vas."
             autoCapitalize="off"
             autoCorrect="off"
             spellCheck={false}
@@ -198,11 +198,11 @@ function RegisterWizard() {
             ? "Creando cuenta…"
             : isOwner
               ? "Abrir mi gimnasio"
-              : "Sumarme al gym"}
+              : "Unirme al gym"}
         </Button>
 
         <p className={styles.footer}>
-          ¿Ya tenés cuenta? <Link href="/login">Iniciá sesión</Link>
+          ¿Ya tienes cuenta? <Link href="/login">Inicia sesión</Link>
         </p>
       </form>
     </>
@@ -212,10 +212,10 @@ function RegisterWizard() {
 function ModeSelector({ onPick }: { onPick: (m: Mode) => void }) {
   return (
     <>
-      <span className={styles.eyebrow}>Creá tu cuenta</span>
+      <span className={styles.eyebrow}>Crea tu cuenta</span>
       <h1 className={styles.title}>¿Cómo vas a usar la plataforma?</h1>
       <p className={styles.subtitle}>
-        Elegí la opción que mejor te describe. Podés cambiarla antes de crear
+        Elige la opción que mejor te describe. Puedes cambiarla antes de crear
         la cuenta.
       </p>
 
@@ -231,8 +231,8 @@ function ModeSelector({ onPick }: { onPick: (m: Mode) => void }) {
           <span className={regStyles.choiceBadge}>Para dueños</span>
           <span className={regStyles.choiceTitle}>Tengo un gimnasio</span>
           <span className={regStyles.choiceDesc}>
-            Abrí tu gym en la plataforma, obtené tu código para compartir con
-            socios y gestioná todo desde el panel de admin.
+            Abre tu gym en la plataforma, obtén tu código para compartir con
+            socios y gestiona todo desde el panel de admin.
           </span>
           <span className={regStyles.choiceCta}>
             Soy dueño <ArrowRight size={14} />
@@ -253,7 +253,7 @@ function ModeSelector({ onPick }: { onPick: (m: Mode) => void }) {
           <span className={regStyles.choiceBadge}>Para socios</span>
           <span className={regStyles.choiceTitle}>Voy a un gimnasio</span>
           <span className={regStyles.choiceDesc}>
-            Creá tu cuenta, ingresá el código del gym al que asistís y empezá
+            Crea tu cuenta, ingresa el código del gym al que vas y empieza
             a registrar tus ingresos con el QR.
           </span>
           <span className={regStyles.choiceCta}>
@@ -263,7 +263,7 @@ function ModeSelector({ onPick }: { onPick: (m: Mode) => void }) {
       </div>
 
       <p className={styles.footer}>
-        ¿Ya tenés cuenta? <Link href="/login">Iniciá sesión</Link>
+        ¿Ya tienes cuenta? <Link href="/login">Inicia sesión</Link>
       </p>
     </>
   );

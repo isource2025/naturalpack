@@ -23,6 +23,9 @@ export default async function DashboardPage() {
   }
 
   const me = await authService.me(session);
+  if (me.role === "client" && !me.trainingProfile) {
+    redirect("/onboarding");
+  }
   const isAdmin = me.role === "admin";
   const status = me.membership?.status ?? "expired";
   const days = me.membership?.daysRemaining ?? 0;
@@ -64,6 +67,7 @@ export default async function DashboardPage() {
             status={statusClass}
             days={days}
             membership={me.membership}
+            trainingProfile={me.trainingProfile}
           />
         )}
       </main>

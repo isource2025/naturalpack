@@ -18,7 +18,7 @@ type Props = {
 };
 
 /**
- * Control tipo "deslizá para confirmar": el thumb va hacia la derecha;
+ * Control tipo "desliza para confirmar": el thumb va hacia la derecha;
  * al soltar pasado el umbral se ejecuta `onComplete`.
  */
 export default function SwipeCloseSlider({
@@ -131,7 +131,7 @@ export default function SwipeCloseSlider({
       className={`${styles.track} ${disabled || busy ? styles.trackDisabled : ""}`}
     >
       <span className={styles.trackLabel}>
-        {busy ? "Cerrando caja…" : "Deslizá para cerrar caja"}
+        {busy ? "Cerrando caja…" : "Desliza para cerrar caja"}
       </span>
       <div
         className={`${styles.thumb} ${smooth ? styles.thumbSmooth : ""}`}

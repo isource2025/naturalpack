@@ -32,6 +32,20 @@ export const userRepository = {
       data: { password: passwordHash },
     });
   },
+  setTrainingProfile(
+    id: string,
+    data: {
+      trainingLevel: "novato" | "intermedio" | "avanzado";
+      trainingGoal: "intensidad" | "fuerza" | "ganancia_musculo";
+      trainingPlanKey: string;
+      onboardingCompletedAt: Date;
+    }
+  ) {
+    return prisma.user.update({
+      where: { id },
+      data,
+    });
+  },
   /**
    * Lista usuarios del gym con su última membresía (si existe) para el panel
    * de administración. Ordenado por nombre. Opcionalmente filtra por rol.

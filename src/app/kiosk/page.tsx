@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { requireSession } from "@/lib/auth";
 import KioskView from "./KioskView";
 
-export const metadata = { title: "Totem · NaturalPack" };
+export const metadata = { title: "Tótem · NaturalPack" };
 export const dynamic = "force-dynamic";
 
 /**

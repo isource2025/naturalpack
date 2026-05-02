@@ -31,13 +31,13 @@ export default function GymCodeCard({
   async function share() {
     if (typeof window === "undefined") return;
     const shareUrl = `${window.location.origin}/register?as=client`;
-    const text = `Sumate a ${gymName} en NaturalPack. Código del gym: ${gymSlug}\nRegistrate acá: ${shareUrl}`;
+    const text = `Únete a ${gymName} en NaturalPack. Código del gym: ${gymSlug}\nRegístrate aquí: ${shareUrl}`;
     const nav = window.navigator as Navigator & {
       share?: (data: ShareData) => Promise<void>;
     };
     try {
       if (typeof nav.share === "function") {
-        await nav.share({ title: `Sumate a ${gymName}`, text, url: shareUrl });
+        await nav.share({ title: `Únete a ${gymName}`, text, url: shareUrl });
       } else {
         await nav.clipboard.writeText(text);
         setCopied(true);

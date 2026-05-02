@@ -1,8 +1,8 @@
 /**
  * Pricing central del gym.
  * Se usa desde el alta de socios (NewUserForm) para sugerir el monto en
- * base a los días de membresía. Si más adelante querés pricing por gym
- * (multi-tenant), convertí `PRICE_TIERS` en un registro en BD y hacelo
+ * base a los días de membresía. Si más adelante quieres pricing por gym
+ * (multi-tenant), convierte `PRICE_TIERS` en un registro en BD y hazlo
  * cargar por gymId; la API pública (`suggestPrice`) se mantiene igual.
  */
 

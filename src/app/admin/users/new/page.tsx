@@ -45,7 +45,7 @@ export default function AdminNewUserPage() {
       <main className="container" style={{ maxWidth: 1080 }}>
         <h1 style={{ marginBottom: "0.25rem" }}>Nuevo socio 🔥</h1>
         <p style={{ color: "var(--muted)", margin: 0 }}>
-          Se creará dentro de tu mismo gym. Podés definir el rol, los días de
+          Se creará dentro de tu mismo gym. Puedes definir el rol, los días de
           membresía iniciales y aceptar el pago en el momento.
         </p>
         <NewUserForm />

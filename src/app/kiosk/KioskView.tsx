@@ -63,12 +63,12 @@ function pickPhrase(seed: string) {
 const IDLE_PHRASE_TEMPLATES = [
   (name: string) => `¡En ${name} hoy se entrena con todo!`,
   (name: string) => `¡${name} te espera — a romperla!`,
-  (name: string) => `Fuego en ${name}: escaneá y entrá 🔥`,
+  (name: string) => `Fuego en ${name}: escanea y entra 🔥`,
   (name: string) => `Hoy el piso tiembla en ${name} 💪`,
   (name: string) => `¡${name} no perdona — vamos con todo!`,
   (name: string) => `Modo bestia activado en ${name} 🚀`,
   (name: string) => `¿Listo? ${name} te espera del otro lado 💣`,
-  (name: string) => `Entrá a ${name} y dejá todo en la pista`,
+  (name: string) => `Entra a ${name} y deja todo en la pista`,
   (name: string) => `Hoy sí o sí hay entreno en ${name}`,
   (name: string) => `¡Dale gas en ${name}, campeón!`,
 ] as const;
@@ -238,19 +238,19 @@ function IdleScreen({
               {headline ?? "\u00A0"}
             </h1>
             <p className={styles.sub}>
-              Abrí la cámara, apuntá al código y listo.
+              Abre la cámara, apunta al código y listo.
             </p>
 
             <div className={styles.steps}>
               <div className={styles.step}>
                 <span className={styles.stepNum}>1</span>
                 <Smartphone className={styles.stepIcon} size={28} strokeWidth={2} />
-                <span className={styles.stepText}>Abrí tu cámara</span>
+                <span className={styles.stepText}>Abre tu cámara</span>
               </div>
               <div className={styles.step}>
                 <span className={styles.stepNum}>2</span>
                 <QrCode className={styles.stepIcon} size={28} strokeWidth={2} />
-                <span className={styles.stepText}>Apuntá al QR</span>
+                <span className={styles.stepText}>Apunta al QR</span>
               </div>
               <div className={styles.step}>
                 <span className={styles.stepNum}>3</span>
@@ -357,7 +357,7 @@ function ResultScreen({ data }: { data: AccessResult }) {
           {granted ? (
             low ? (
               <>
-                <AlertTriangle size={18} /> Entrá — membresía por vencer
+                <AlertTriangle size={18} /> Entra — membresía por vencer
               </>
             ) : (
               <>

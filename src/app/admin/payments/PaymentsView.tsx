@@ -153,11 +153,11 @@ export default function PaymentsView() {
     e.preventDefault();
     setFeedback(null);
     if (!form.userId) {
-      setFeedback({ kind: "err", message: "Elegí un socio" });
+      setFeedback({ kind: "err", message: "Elige un socio" });
       return;
     }
     if (form.listAmount <= 0) {
-      setFeedback({ kind: "err", message: "Ingresá un monto mayor a 0" });
+      setFeedback({ kind: "err", message: "Ingresa un monto mayor a 0" });
       return;
     }
     if (form.days <= 0) {
@@ -230,8 +230,8 @@ export default function PaymentsView() {
           <Receipt size={18} /> Registrar pago
         </h2>
         <p className={styles.cardHint}>
-          Aceptá el pago, elegí los días y quedará registrado en auditoría
-          automáticamente. Si aplicás un descuento por código, se valida al
+          Acepta el pago, elige los días y quedará registrado en auditoría
+          automáticamente. Si aplicas un descuento por código, se valida al
           tipear.
         </p>
 
@@ -247,7 +247,7 @@ export default function PaymentsView() {
               onChange={(e) => update("userId", e.target.value)}
               required
             >
-              <option value="">Elegí un socio…</option>
+              <option value="">Elige un socio…</option>
               {clients.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name} — {c.email}
