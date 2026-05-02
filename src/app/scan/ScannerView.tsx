@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import {
   Camera,
   CheckCircle2,
@@ -9,8 +10,7 @@ import {
   RotateCcw,
   ArrowLeft,
   ScanLine,
-  AlertTriangle,
-  Dumbbell,
+  ArrowBigDown,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Nav from "@/components/ui/Nav";
@@ -18,6 +18,7 @@ import {
   isMembershipCritical,
   membershipCriticalScannerRenewHint,
 } from "@/lib/membershipUi";
+import { ROUTINE_SECTION_ID } from "@/lib/routineSection";
 import styles from "./ScannerView.module.css";
 
 type AccessResult = {
@@ -25,7 +26,128 @@ type AccessResult = {
   user: { name: string; photoUrl: string | null };
   membership: { daysRemaining: number };
   message: string;
+  timestamp?: string;
 };
+
+const GRANTED_PHRASES = [
+  "¡Todo listo, a entrenar!",
+  "Hoy se entrena fuerte.",
+  "Dale con todo.",
+  "Modo bestia activado.",
+];
+
+function pickPhrase(seed: string) {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0;
+  const idx = Math.abs(h) % GRANTED_PHRASES.length;
+  return GRANTED_PHRASES[idx];
+}
+
+function ScanGrantedHero({
+  data,
+  onScanAnother,
+}: {
+  data: AccessResult;
+  onScanAnother: () => void;
+}) {
+  const low = isMembershipCritical(data.membership.daysRemaining);
+  const initial = data.user.name?.charAt(0)?.toUpperCase() ?? "?";
+  const phrase = low ? "Entrá igual — renová cuando puedas." : pickPhrase(data.timestamp ?? data.user.name);
+  const routineHref = `/dashboard#${ROUTINE_SECTION_ID}`;
+
+  useEffect(() => {
+    if (low) return;
+    let cancelled = false;
+    void import("canvas-confetti").then((mod) => {
+      if (cancelled) return;
+      mod.default({
+        particleCount: 48,
+        spread: 58,
+        origin: { y: 0.74 },
+        scalar: 0.85,
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [low]);
+
+  return (
+    <motion.div
+      className={`${styles.successStage} ${low ? styles.successStageLow : ""}`}
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <div className={styles.successInner}>
+        <motion.div
+          className={styles.successAvatar}
+          initial={{ scale: 0.75, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 200, damping: 18 }}
+        >
+          {data.user.photoUrl ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src={data.user.photoUrl} alt="" />
+          ) : (
+            <span>{initial}</span>
+          )}
+        </motion.div>
+
+        <motion.p
+          className={styles.successName}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.06 }}
+        >
+          {data.user.name}
+        </motion.p>
+
+        <motion.div
+          className={`${styles.membershipStrip} ${low ? styles.membershipStripLow : ""}`}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12 }}
+        >
+          <span className={styles.membershipStripNum}>{data.membership.daysRemaining}</span>
+          <span className={styles.membershipStripLabel}>
+            {data.membership.daysRemaining === 1 ? "día restante" : "días restantes"}
+          </span>
+        </motion.div>
+
+        <motion.span className={styles.successBadge} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.16 }}>
+          <CheckCircle2 size={18} /> Acceso registrado
+        </motion.span>
+
+        <motion.h2 className={styles.successTagline} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+          {phrase}
+        </motion.h2>
+
+        {low ? (
+          <p className={styles.successWarn}>{membershipCriticalScannerRenewHint()}</p>
+        ) : null}
+
+        <motion.div
+          className={styles.routineCue}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.28 }}
+        >
+          <span className={styles.routineCueLabel}>Tu rutina de hoy</span>
+          <ArrowBigDown className={styles.routineArrow} aria-hidden strokeWidth={2} />
+          <Link href={routineHref} className={styles.routineLink}>
+            Abrir mi rutina en el teléfono
+          </Link>
+          <p className={styles.routineHint}>Te llevamos al carrusel del día en tu panel.</p>
+        </motion.div>
+
+        <Button variant="secondary" size="sm" onClick={onScanAnother} leftIcon={<RotateCcw size={14} />}>
+          Escanear otro
+        </Button>
+      </div>
+    </motion.div>
+  );
+}
 
 type UIState =
   | { kind: "idle" }
@@ -230,37 +352,34 @@ export default function ScannerView({
       />
 
       <main className={styles.main}>
-        {hasInitialToken ? (
-          <>
-            <p className={styles.eyebrow}>Registrando tu ingreso</p>
-            <h1 className={styles.title}>
-              {ui.kind === "submitting"
-                ? "Validando tu ingreso…"
-                : ui.kind === "result"
-                ? ui.data.status === "granted"
-                  ? `¡A entrenar, ${ui.data.user.name}!`
-                  : "No pudimos registrarte"
-                : "Tu ingreso"}
-            </h1>
-            <p className={styles.subtitle}>
-              {ui.kind === "submitting"
-                ? "Ya estamos confirmando tu entrada, no cierres la pantalla."
-                : ui.kind === "result" && ui.data.status === "granted"
-                ? "El personal ya te vio. Pasa tranquilo a la sala."
-                : "Muestra este mensaje en recepción si hace falta."}
-            </p>
-          </>
-        ) : (
-          <>
-            <p className={styles.eyebrow}>Escanea para ingresar</p>
-            <h1 className={styles.title}>Apunta al QR de la pantalla</h1>
-            <p className={styles.subtitle}>
-              Abre la cámara y apunta al código que aparece en la pantalla del gym.
-            </p>
-          </>
-        )}
+        {!(ui.kind === "result" && ui.data.status === "granted") &&
+          (hasInitialToken ? (
+            <>
+              <p className={styles.eyebrow}>Registrando tu ingreso</p>
+              <h1 className={styles.title}>
+                {ui.kind === "submitting"
+                  ? "Validando tu ingreso…"
+                  : ui.kind === "result"
+                    ? "No pudimos registrarte"
+                    : "Tu ingreso"}
+              </h1>
+              <p className={styles.subtitle}>
+                {ui.kind === "submitting"
+                  ? "Ya estamos confirmando tu entrada, no cierres la pantalla."
+                  : "Muestra este mensaje en recepción si hace falta."}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className={styles.eyebrow}>Escanea para ingresar</p>
+              <h1 className={styles.title}>Apunta al QR de la pantalla</h1>
+              <p className={styles.subtitle}>
+                Abre la cámara y apunta al código que aparece en la pantalla del gym.
+              </p>
+            </>
+          ))}
 
-        {!hasInitialToken && (
+        {!hasInitialToken && !(ui.kind === "result" && ui.data.status === "granted") && (
           <div className={styles.videoWrap}>
             <video ref={videoRef} playsInline muted />
             {ui.kind === "scanning" && <div className={styles.overlay} />}
@@ -296,66 +415,18 @@ export default function ScannerView({
             </div>
           )}
 
-          {ui.kind === "result" && (
-            <div
-              className={`${styles.result} ${
-                ui.data.status === "granted"
-                  ? isMembershipCritical(ui.data.membership.daysRemaining)
-                    ? styles.grantedCritical
-                    : styles.granted
-                  : styles.denied
-              }`}
-            >
+          {ui.kind === "result" && ui.data.status === "granted" && (
+            <ScanGrantedHero data={ui.data} onScanAnother={reset} />
+          )}
+
+          {ui.kind === "result" && ui.data.status === "denied" && (
+            <div className={`${styles.result} ${styles.denied}`}>
               <h3 className={styles.resultHeader}>
-                {ui.data.status === "granted" ? (
-                  isMembershipCritical(ui.data.membership.daysRemaining) ? (
-                    <>
-                      <AlertTriangle size={20} /> ¡Atención,{" "}
-                      {ui.data.user.name}!
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle2 size={20} /> ¡A entrenar, {ui.data.user.name}!
-                    </>
-                  )
-                ) : (
-                  <>
-                    <XCircle size={20} /> Acceso denegado
-                  </>
-                )}
+                <XCircle size={20} /> Acceso denegado
               </h3>
-              <p className={styles.resultBody}>
-                {ui.data.status === "granted" ? (
-                  isMembershipCritical(ui.data.membership.daysRemaining) ? (
-                    <>
-                      Te quedan{" "}
-                      <span className={styles.daysCritical}>
-                        {ui.data.membership.daysRemaining}
-                      </span>{" "}
-                      día
-                      {ui.data.membership.daysRemaining === 1 ? "" : "s"} de
-                      membresía. {membershipCriticalScannerRenewHint()}
-                    </>
-                  ) : (
-                    <span className={styles.resultBodyRow}>
-                      <Dumbbell size={16} />
-                      Te quedan{" "}
-                      <strong>{ui.data.membership.daysRemaining}</strong> día
-                      {ui.data.membership.daysRemaining === 1 ? "" : "s"} de
-                      membresía. Aprovechalos.
-                    </span>
-                  )
-                ) : (
-                  ui.data.message
-                )}
-              </p>
+              <p className={styles.resultBody}>{ui.data.message}</p>
               <div style={{ marginTop: "0.75rem" }}>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={reset}
-                  leftIcon={<RotateCcw size={14} />}
-                >
+                <Button variant="secondary" size="sm" onClick={reset} leftIcon={<RotateCcw size={14} />}>
                   Escanear otro
                 </Button>
               </div>

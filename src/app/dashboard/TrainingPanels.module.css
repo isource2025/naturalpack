@@ -1,3 +1,7 @@
+.routineAnchor {
+  scroll-margin-top: 5.5rem;
+}
+
 .stack {
   display: flex;
   flex-direction: column;
